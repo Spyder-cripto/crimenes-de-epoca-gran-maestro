@@ -1304,11 +1304,15 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
   });
   document.getElementById('bDeshacer').addEventListener('click', deshacer);
   document.getElementById('bComprobar').addEventListener('click', () => {
+    if (est.resuelto) { aviso('El caso ya está resuelto. Pulsa «Borrar» para empezar de nuevo.'); return; }
     const puestos = est.pos.map((k, i) => (k === null ? -1 : i)).filter((i) => i >= 0);
     if (!puestos.length) { aviso('Aún no has colocado a nadie.'); return; }
     const mal = puestos.filter((i) => est.pos[i] !== SOL[i]);
     const tachasMal = est.tachas.filter((t, k) => t && SOL.includes(k)).length;
     marcadosMal = new Set(mal); pintar();
+    // todos colocados y en su sitio: solo falta señalar al asesino. Si se cerró esa pregunta (o la partida venía guardada),
+    // «Comprobar» la vuelve a abrir; antes decía «Todo bien por ahora» y el caso no se podía terminar (aviso de Fali, 12-oct)
+    if (!mal.length && puestos.length === P.length) { revisarFinal(true); return; }
     let t = mal.length ? `${mal.length === 1 ? 'Hay 1 personaje mal colocado' : `Hay ${mal.length} personajes mal colocados`} (con el aro rojo).` : `Todo bien por ahora: ${puestos.length === 1 ? 'el que has colocado está' : `los ${puestos.length} que has colocado están`} en su sitio.`;
     if (tachasMal) t += ` Y has tachado ${tachasMal === 1 ? 'una casilla' : tachasMal + ' casillas'} donde sí hay alguien.`;
     sonar(mal.length || tachasMal ? 'no' : 'bien'); aviso(t, 5400);
