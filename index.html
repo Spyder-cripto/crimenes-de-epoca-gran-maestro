@@ -1,0 +1,1541 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crímenes de época: Gran Maestro</title>
+<meta name="description" content="El caso más difícil de Crímenes de época, en la Roma de los idus de marzo: coloca a cada sospechoso, uno por fila y por columna, y descubre al asesino.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,700;1,400&family=Alegreya+SC:wght@700&family=Cinzel:wght@700&family=Cinzel+Decorative:wght@700&family=Grenze+Gotisch:wght@600;700&family=Marcellus&family=Marcellus+SC&family=Orbitron:wght@600;700&family=Pirata+One&family=Rye&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papel:#ece4f2; --papel2:#e3d8ec; --tinta:#2c2531; --tinta2:#4a4152; --acento:#8a5fb6; --acento2:#6c4796;
+  --blanco:#fbf8f2; --rojo:#b8323a; --oro:#e0a82e; --suave:#ffffff;
+  --fuente-titulo:UnifrakturMaguntia,'Grenze Gotisch',serif; --fuente-nombre:'Grenze Gotisch',Georgia,serif;
+  --fuente-texto:Alegreya,Georgia,'Times New Roman',serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--fuente-texto);font-size:17px;line-height:1.35;-webkit-tap-highlight-color:transparent;transition:background .3s}
+button{font-family:inherit;color:inherit}
+[hidden]{display:none!important}
+/* ---- portada ---- */
+.portada{max-width:1080px;margin:0 auto;padding:18px 16px 28px}
+.portada .marca{text-align:center}
+.portada h1{font-family:'Grenze Gotisch',UnifrakturMaguntia,serif;font-weight:700;font-size:clamp(44px,10vw,74px);margin:0;line-height:1;letter-spacing:.5px}
+.portada .otra{text-align:center;margin:26px auto 4px;font-size:1.05rem}
+.portada .otra a{color:var(--tinta);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.portada .lema{font-style:italic;color:var(--tinta2);margin:6px auto 0;max-width:600px;text-wrap:balance}
+.portada .seccion{font-family:'Grenze Gotisch',UnifrakturMaguntia,serif;font-size:30px;margin:26px 0 0;text-align:center}
+.casos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:18px}
+.caso{border:2px solid var(--tinta);border-radius:16px;background:var(--blanco);padding:10px 10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;min-width:0}
+.caso:hover{transform:translateY(-2px)}
+.caso:focus-visible{outline:3px solid var(--oro);outline-offset:2px}
+.caso .mini{width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;display:block;max-width:100%}
+.caso .mini svg{width:100%;height:100%;display:block}
+.caso .nivel{font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;display:flex;justify-content:space-between;gap:6px}
+.caso .tit{font-size:22px;line-height:1.1}
+.caso .mundo{font-size:14px;color:var(--tinta2)}
+.caso .estado{font-size:14px;font-weight:700}
+.caso .estado.hecho{color:#2f7d3a}
+.portada .como{margin:20px auto 0;max-width:760px;background:var(--blanco);border:2px solid var(--tinta);border-radius:14px;padding:12px 16px}
+.portada .como h2{margin:0 0 6px;font-size:22px}
+.portada .como p{margin:5px 0}
+/* ---- partida ---- */
+.cabecera{text-align:center;padding:10px 16px 4px;position:relative}
+.cabecera .volver{position:absolute;left:16px;top:12px}
+.cabecera .capitulo{font-size:15px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--tinta2);padding:0 60px}
+.cabecera h1{font-family:var(--fuente-titulo);font-weight:400;font-size:clamp(32px,7vw,54px);margin:2px 0 0;line-height:1.05;text-wrap:balance}
+.cabecera .entradilla{font-style:italic;margin:4px auto 0;max-width:560px;color:var(--tinta2)}
+main{display:grid;grid-template-columns:minmax(0,600px) minmax(0,470px);gap:26px;justify-content:center;padding:10px 16px 20px;align-items:start}
+@media (max-width:980px){main{grid-template-columns:minmax(0,600px)}}
+#tablero{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+#tablero .celda{cursor:pointer}
+.barra{display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:center;margin:8px 0}
+.modos{display:inline-flex;border:2px solid var(--tinta);border-radius:12px;overflow:hidden;background:var(--blanco)}
+.modos button{border:0;background:transparent;padding:7px 12px;font-weight:700;font-size:16px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.modos button+button{border-left:2px solid var(--tinta)}
+.modos button[aria-pressed="true"]{background:var(--acento);color:#fff}
+.boton{border:2px solid var(--tinta);border-radius:12px;background:var(--blanco);padding:7px 10px;font-weight:700;font-size:16px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.boton:hover,.modos button:hover{filter:brightness(.96)}
+.boton:focus-visible,.modos button:focus-visible,.ficha:focus-visible,.carta:focus-visible{outline:3px solid var(--oro);outline-offset:2px}
+.boton.principal{background:var(--acento);color:#fff;border-color:var(--acento2)}
+.boton.icono{padding:7px 10px}
+.boton svg,.modos svg{width:18px;height:18px;flex:none}
+.fichas{display:grid;grid-template-columns:repeat(var(--n,9),1fr);gap:4px;margin:6px 0 4px}
+.ficha{border:0;background:transparent;padding:2px 0 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;border-radius:10px;position:relative;min-width:0}
+.ficha svg{width:100%;max-width:58px;height:auto;display:block}
+.ficha .ini{font-family:var(--fuente-nombre);font-weight:700;font-size:14px;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ficha .corto{display:none}
+.fichas.largos .ini{font-size:12.5px}
+.ficha[aria-pressed="true"]{background:#fff3c9;box-shadow:0 0 0 3px var(--oro) inset}
+.ficha.puesta svg{opacity:.38}
+.ficha.puesta .ini{opacity:.5}
+.elegido{display:flex;gap:12px;align-items:center;background:var(--blanco);border:2px solid var(--tinta);border-radius:14px;padding:8px 12px;min-height:74px}
+.elegido svg{width:58px;height:58px;flex:none}
+.elegido .nom{font-family:var(--fuente-nombre);font-weight:700;font-size:23px;line-height:1}
+.elegido .clase{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:1px 7px;border-radius:6px;margin-left:6px;vertical-align:3px;background:var(--papel2)}
+.elegido .txt{font-size:16.5px}
+.elegido .aviso{color:var(--rojo);font-weight:700;font-size:15px}
+.elegido.vacio{justify-content:center;color:var(--tinta2);font-style:italic}
+.cartas-tit{font-family:var(--fuente-titulo);font-weight:400;font-size:30px;text-align:center;margin:0 0 6px}
+.cartas{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 10px}
+.carta{display:flex;flex-direction:column;align-items:center;cursor:pointer;border:0;background:transparent;padding:0;text-align:center;min-width:0}
+.carta svg{width:min(116px,90%);height:auto;display:block}
+.carta .placa{font-family:var(--fuente-nombre);font-weight:700;font-size:19px;margin-top:-17px;padding:1px 10px;border-radius:5px;border:2px solid var(--tinta);background:var(--blanco);position:relative;line-height:1.25;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.carta .pista{margin-top:-3px;padding:9px 7px 7px;border-radius:9px;background:var(--papel2);font-size:15px;line-height:1.17;width:100%;min-height:58px}
+.carta.V .pista{background:#f1c0b0}
+.carta[aria-pressed="true"] .placa,.carta[aria-pressed="true"] .pista{box-shadow:0 0 0 3px var(--oro)}
+.notas-gen{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+.notas-gen div{background:var(--papel2);border:2px solid var(--tinta);border-radius:10px;padding:8px 10px;font-size:15px;text-align:center}
+.notas-gen .especial{background:var(--blanco)}
+.pista-caja{background:var(--blanco);border:2px solid var(--acento);border-radius:12px;padding:10px 12px;margin-top:8px}
+@media (max-width:600px){
+  .ficha .largo{display:none}.ficha .corto{display:inline}.ficha .ini{font-size:16px}
+  .acciones{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .acciones .boton{justify-content:center;padding:7px 4px;font-size:15px}
+  .modos button{padding:7px 10px}
+  .cabecera .capitulo{font-size:13px;padding:0}
+  .cabecera .volver{position:static;margin:0 auto 6px 0;display:flex}
+  .cabecera{padding-top:8px}
+}
+@media (max-width:420px){.carta .pista{font-size:13.6px}.carta .placa{font-size:16px}}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%) translateY(20px);background:var(--tinta);color:#fff;padding:10px 16px;border-radius:12px;
+  max-width:min(92vw,520px);font-size:16px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;text-align:center}
+#toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
+dialog{border:3px solid var(--tinta);border-radius:16px;background:var(--papel);color:var(--tinta);padding:0;max-width:min(94vw,640px);width:100%}
+dialog::backdrop{background:rgba(44,37,49,.45)}
+.dlg{padding:16px 18px 18px;max-height:86vh;overflow:auto}
+.dlg h2{font-family:var(--fuente-titulo);font-weight:400;font-size:32px;margin:0 0 6px;text-align:center;line-height:1.1}
+.dlg h3{font-family:var(--fuente-nombre);font-size:21px;margin:14px 0 4px}
+.dlg p{margin:6px 0}
+.dlg .pie{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.clases{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0}
+.clases div{border-radius:10px;padding:8px;text-align:center;font-size:15px;background:var(--blanco)}
+.clases svg{width:64px;height:64px;display:block;margin:0 auto 2px}
+.clases b.n{font-family:var(--fuente-nombre);font-size:19px;display:block}
+.obj{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:6px}
+.obj>div{border-radius:10px;padding:6px 8px;text-align:center}
+.obj .si{background:#cfe6c6}.obj .no{background:#f3d3da}
+.obj .lista{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 10px}
+.obj figure{margin:0;display:flex;flex-direction:column;align-items:center;font-size:13.5px;font-weight:700;max-width:76px;text-align:center}
+.obj figure svg{width:44px;height:44px}
+@media (max-width:480px){.obj{grid-template-columns:1fr}}
+.ajustes label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.ajustes input{width:20px;height:20px;margin-top:2px;accent-color:var(--acento)}
+.sospechosos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.sospechosos button{border:2px solid var(--tinta);border-radius:12px;background:var(--blanco);padding:6px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-width:0}
+.sospechosos svg{width:58px;height:58px}
+.sospechosos span{font-family:var(--fuente-nombre);font-weight:700;font-size:16px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.sospechosos button.mal{animation:sacude .4s;border-color:var(--rojo)}
+@keyframes sacude{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){.sospechosos button.mal{animation:none}.caso:hover{transform:none}}
+.resuelto{text-align:center}
+.resuelto svg{width:110px;height:110px}
+.pie-pagina{text-align:center;font-size:14px;color:var(--tinta2);padding:4px 16px 24px;max-width:760px;margin:0 auto}
+.pie-pagina a{color:var(--acento2)}
+
+</style>
+</head>
+<body>
+<section class="portada" id="portada">
+  <div class="marca">
+    <h1>Crímenes de época: Gran Maestro</h1>
+    <p class="lema">Un solo caso, el más difícil: en casa de un senador romano, la víspera de los idus de marzo. Aquí no bastan las suposiciones sencillas.</p>
+  </div>
+  <div id="casos"></div>
+  <p class="otra">¿Quieres calentar antes? <a href="https://spyder-cripto.github.io/crimenes-de-epoca/">Cinco crímenes en cinco mundos →</a></p>
+  <div class="como">
+    <h2>Cómo se juega</h2>
+    <p>• En cada <b>fila</b> y en cada <b>columna</b> hay exactamente <b>una persona</b>.</p>
+    <p>• Coloca a los sospechosos según sus pistas; la víctima va en la casilla que queda libre.</p>
+    <p>• El <b>asesino</b> es la única persona que estaba en la misma zona que la víctima.</p>
+    <p>• Además, la regla de <b>la conjura</b>: los <b>patricios</b> siempre están sobre <b>mosaico</b>, los <b>esclavos</b> nunca, y dos <b>conjurados</b> nunca están en la misma zona.<br>• Es un caso de <b>Gran Maestro</b>: llega un momento en que ninguna suposición sencilla basta. Hace falta suponer algo y, dentro de esa suposición, suponer otra cosa… o dar con un razonamiento de conjunto muy bien escondido. Si te atascas, las pistas te lo explican paso a paso.</p>
+  </div>
+</section>
+<section id="partida" hidden>
+  <header class="cabecera">
+    <button class="boton volver" id="bVolver" aria-label="Volver a los casos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7l7 7"/></svg>Casos</button>
+    <div class="capitulo" id="capitulo"></div>
+    <h1 id="titulo"></h1>
+    <p class="entradilla" id="entradilla"></p>
+  </header>
+  <main>
+    <section class="izq">
+      <div class="barra">
+        <div class="modos" id="modos" role="group" aria-label="Qué hace un toque en el tablero">
+          <button data-modo="colocar" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21c1-4 4-6 7-6s6 2 7 6"/></svg>Colocar</button>
+          <button data-modo="notas" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg>Notas</button>
+          <button data-modo="tachar" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Tachar</button>
+        </div>
+      </div>
+      <svg id="tablero" role="img" aria-label="Escena del crimen"></svg>
+      <div class="fichas" id="fichas"></div>
+      <div class="elegido vacio" id="elegido">Toca un retrato para elegir personaje.</div>
+      <div class="pista-caja" id="pistaCaja" aria-live="polite" hidden></div>
+      <div class="barra acciones">
+        <button class="boton" id="bDeshacer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg>Deshacer</button>
+        <button class="boton" id="bBorrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>Borrar</button>
+        <button class="boton" id="bComprobar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Comprobar</button>
+        <button class="boton" id="bPista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0012 3z"/></svg>Pista</button>
+        <button class="boton" id="bNormas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c3-1 6-1 8 1 2-2 5-2 8-1v14c-3-1-6-1-8 1-2-2-5-2-8-1z"/><path d="M12 6v14"/></svg>Normas</button>
+        <button class="boton icono" id="bSonido" aria-label="Sonido"></button>
+      </div>
+    </section>
+    <section class="der">
+      <h2 class="cartas-tit">Personajes y pistas</h2>
+      <div class="cartas" id="cartas"></div>
+      <div class="notas-gen" id="notasGen"></div>
+    </section>
+  </main>
+</section>
+<footer class="pie-pagina">Inspirado en los <i>Murdoku</i> de Manuel Garand. Casos, dibujos y textos propios. Hecho con cariño para jugar en el móvil o en el ordenador.</footer>
+<dialog id="dlg"><div class="dlg" id="dlgCuerpo"></div></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+// Base común del arte de «Crímenes de época»: estilo plano (sin sombras ni degradados), contorno oscuro, colores claros.
+// Cada mundo se registra en ARTE_MUNDOS[<mundo>] con:
+//   paleta: { papel, papel2, tinta, tinta2, acento, acento2, ... }  (colores de la página de ese mundo; claros)
+//   texturas: { <tex>: () => '<pattern id="t-<tex>" patternUnits="userSpaceOnUse" width="100" height="100">…</pattern>' }
+//   objetos: { <dib>: () => '…' }  (contenido SVG en una caja de 100x100, centrado, ocupando ~85 %; los de ancho 2, 200x100)
+//   retratos: { <id>: () => '…' }  (100x100, de hombros arriba, SIN CARA, como en el libro: usar BASE.cuerpo/cuello/cara)
+//   fondos: { <clase>: () => '…' }  (fondo de la carta del personaje, 100x100: estandarte, tablilla, escudo…)
+//   marcos: { <tipo de zona>: { color: '#…', icono: () => '…' (50x34) } }  (borde de las zonas especiales y su icono)
+(function (raiz) {
+  'use strict';
+  const C = { tinta: '#2c2531', piel: '#f3cba8', pielOsc: '#e2b08b', piel2: '#d9a27a', piel2Osc: '#c48a62', piel3: '#a8704a', piel3Osc: '#8f5c3a' };
+  // cuerpo (hombros) con la ropa; extra: detalles encima (cuello de la camisa, correas…)
+  const cuerpo = (ropa, extra) => `<path d="M8 100C10 86 22 78 38 76L44 72H56L62 76C78 78 90 86 92 100Z" fill="${ropa}" stroke="${C.tinta}" stroke-width="2" stroke-linejoin="round"/>${extra || ''}`;
+  const cuello = (osc) => `<path d="M42 58h16v18c-5 4-11 4-16 0z" fill="${osc || C.pielOsc}"/>`;
+  // cara sin rasgos (como en el libro): óvalo y orejas
+  const cara = (piel, rx = 16.5, ry = 20.5, cy = 44) => { const p = piel || C.piel; return `<ellipse cx="33.5" cy="${cy + 2}" rx="3.6" ry="5.2" fill="${p}"/><ellipse cx="66.5" cy="${cy + 2}" rx="3.6" ry="5.2" fill="${p}"/><ellipse cx="50" cy="${cy}" rx="${rx}" ry="${ry}" fill="${p}"/>`; };
+  raiz.ARTE_BASE = { C, cuerpo, cuello, cara };
+  raiz.ARTE_MUNDOS = raiz.ARTE_MUNDOS || {};
+})(typeof window !== 'undefined' ? window : globalThis);
+
+// Arte del mundo «Roma» de «Crímenes de época»: la casa de un senador la víspera de los idus de marzo (el Gran Maestro).
+// Mismo estilo que el resto de la colección: dibujo plano (sin degradados, sin sombras ni brillos), contorno oscuro con
+// esquinas redondeadas y colores claros: mármol, crema, terracota clara, bronce suave, verde laurel y agua clara.
+// La marca especial son las casillas con MOSAICO (los patricios siempre pisan mosaico y los esclavos nunca): teselas
+// crema y blancas con un rosetón negro y terracota, y una cenefa terracota con filetes negros alrededor de cada grupo,
+// como una alfombra enmarcada. Ninguna textura de zona lleva teselas cuadradas, para que el mosaico no se confunda.
+// No usa identificadores (ni clipPath ni degradados) salvo los de las texturas, así que todo se puede repetir en la misma
+// página. Registra ARTE_MUNDOS.roma (ver la cabecera de base.js), con celdaMarcada, remateMarcada e iconoRegla.
+(function (raiz) {
+  'use strict';
+  const B = raiz.ARTE_BASE, T = B.C.tinta, C = B.C;
+
+  // ---------- colores del mundo ----------
+  const K = {
+    marmol: '#f8f5ef', marmol2: '#e9e3d9', veta: '#d7cfc2', blanco: '#fffdf8',
+    oro: '#f2c94c', oroOsc: '#cc9b2b', oroCl: '#f8e2a0',
+    bronce: '#e2ae63', bronceOsc: '#bf8a44', bronceCl: '#f2d39b',
+    barro: '#e9a47c', barroOsc: '#c97f58', barroCl: '#f4c6a8',
+    ladrillo: '#eb9f7f', ladrilloOsc: '#cf7f5d', ladrilloCl: '#f6c4ac',
+    piedra: '#e6dfd3', piedraOsc: '#c9bfae',
+    madera: '#dcaa72', maderaOsc: '#b8834c', maderaCl: '#edc999',
+    rojo: '#d4604c', rojoOsc: '#b0473b', rojoCl: '#f0a593',
+    agua: '#a9ddef', aguaCl: '#d6f0fa', aguaOsc: '#7cc5df',
+    verde: '#93ca7c', verdeCl: '#c3e5aa',
+    azul: '#9fc4ea', azulCl: '#d3e5f7',
+    fuego: '#f5a04c', fuegoCl: '#fbd65e', brasa: '#ea6b45',
+  };
+
+  // ---------- ayudantes de dibujo ----------
+  const n1 = (v) => (Math.round(v * 10) / 10).toString();
+  const n2 = (v) => (Math.round(v * 100) / 100).toString();
+  // figura rellena con el contorno oscuro
+  const fig = (d, relleno, grosor = 3) => `<path d="${d}" fill="${relleno}" stroke="${T}" stroke-width="${grosor}" stroke-linejoin="round" stroke-linecap="round"/>`;
+  // línea suelta, sin relleno
+  const raya = (d, color, grosor = 2.4) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${grosor}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  // «tubo» con contorno: un trazo grueso oscuro y encima otro más fino de color (patas, asas, cadenas…)
+  const tubo = (d, color, ancho, borde = 2.6, tapa = 'round') =>
+    `<path d="${d}" fill="none" stroke="${T}" stroke-width="${ancho + 2 * borde}" stroke-linecap="${tapa}" stroke-linejoin="round"/>` +
+    `<path d="${d}" fill="none" stroke="${color}" stroke-width="${ancho}" stroke-linecap="${tapa}" stroke-linejoin="round"/>`;
+  const circ = (x, y, r, relleno, grosor = 2) => `<circle cx="${n2(x)}" cy="${n2(y)}" r="${r}" fill="${relleno}" stroke="${T}" stroke-width="${grosor}"/>`;
+  const caja = (x, y, w, h, rx, relleno, grosor = 3) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${relleno}" stroke="${T}" stroke-width="${grosor}" stroke-linejoin="round"/>`;
+  const punto = (x, y, r, relleno) => `<circle cx="${n2(x)}" cy="${n2(y)}" r="${r}" fill="${relleno}"/>`;
+  // hoja puntiaguda (laurel, olivo) que nace en (bx, by) con un ángulo (0 = hacia arriba, en grados)
+  const hoja = (bx, by, ang, largo, ancho, relleno, w = 1.8, nervio = true) => {
+    const r = (a) => (a * Math.PI) / 180;
+    const tx = bx + largo * Math.sin(r(ang)), ty = by - largo * Math.cos(r(ang));
+    const nx = Math.cos(r(ang)) * ancho, ny = Math.sin(r(ang)) * ancho;
+    const mx = (bx + tx) / 2, my = (by + ty) / 2;
+    return `<path d="M${n1(bx)} ${n1(by)}Q${n1(mx - nx)} ${n1(my - ny)} ${n1(tx)} ${n1(ty)}Q${n1(mx + nx)} ${n1(my + ny)} ${n1(bx)} ${n1(by)}Z" fill="${relleno}" stroke="${T}" stroke-width="${w}" stroke-linejoin="round"/>` +
+      (nervio ? `<path d="M${n1(bx)} ${n1(by)}L${n1(mx + (tx - mx) * 0.5)} ${n1(my + (ty - my) * 0.5)}" stroke="${T}" stroke-width="1" opacity=".35"/>` : '');
+  };
+
+  // ---------- texturas de las zonas (claras, de poco contraste y sin teselas: el mosaico es la marca especial) ----------
+  const patron = (id, fondo, dibujo) => `<pattern id="t-${id}" patternUnits="userSpaceOnUse" width="100" height="100"><rect width="100" height="100" fill="${fondo}"/>${dibujo}</pattern>`;
+  // repite un motivo en las baldosas vecinas para que la textura empalme sin costuras (m: lo que sobresale el motivo)
+  const rep = (x, y, f, m = 16) => {
+    let s = '';
+    for (const dx of [0, -100, 100]) for (const dy of [0, -100, 100]) {
+      const X = x + dx, Y = y + dy;
+      if (X > -m && X < 100 + m && Y > -m && Y < 100 + m) s += f(X, Y);
+    }
+    return s;
+  };
+  // recorta un polígono por el semiplano f(p) <= 0 (Sutherland–Hodgman con una función lineal)
+  const recortar = (pol, f) => {
+    const out = [];
+    for (let i = 0; i < pol.length; i++) {
+      const a = pol[i], b = pol[(i + 1) % pol.length], fa = f(a), fb = f(b);
+      if (fa <= 0) out.push(a);
+      if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)) { const t = fa / (fa - fb); out.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]); }
+    }
+    return out;
+  };
+  // losas irregulares: celdas de Voronoi de unas semillas repetidas cada 100 (empalman solas), separadas por una junta
+  const losasIrregulares = (semillas, junta) => {
+    const todas = [];
+    for (const [x, y] of semillas) for (const dx of [-100, 0, 100]) for (const dy of [-100, 0, 100]) todas.push([x + dx, y + dy]);
+    return semillas.map(([sx, sy]) => {
+      let pol = [[sx - 100, sy - 100], [sx + 100, sy - 100], [sx + 100, sy + 100], [sx - 100, sy + 100]];
+      for (const [ox, oy] of todas) {
+        if (ox === sx && oy === sy) continue;
+        const L = Math.hypot(ox - sx, oy - sy), ux = (ox - sx) / L, uy = (oy - sy) / L;
+        pol = recortar(pol, ([x, y]) => (x - sx) * ux + (y - sy) * uy - (L / 2 - junta / 2));
+      }
+      return pol;
+    });
+  };
+  // dibuja un polígono y sus copias desplazadas 100 (las que asoman a la baldosa), con las esquinas redondeadas
+  const poligonoRep = (pol, relleno, redondeo) => {
+    let s = '';
+    for (const dx of [-100, 0, 100]) for (const dy of [-100, 0, 100]) {
+      const p = pol.map(([x, y]) => [x + dx, y + dy]);
+      if (p.every(([x]) => x < 0) || p.every(([x]) => x > 100) || p.every(([, y]) => y < 0) || p.every(([, y]) => y > 100)) continue;
+      s += `<path d="M${p.map(([x, y]) => n1(x) + ' ' + n1(y)).join('L')}Z" fill="${relleno}" stroke="${relleno}" stroke-width="${redondeo}" stroke-linejoin="round"/>`;
+    }
+    return s;
+  };
+
+  const texturas = {
+    // Vestíbulo (a la calle): losas irregulares de piedra caliza clara, como las de una calzada
+    vestibulo: () => {
+      const semillas = [[14, 14], [48, 8], [80, 20], [30, 44], [64, 40], [92, 56], [12, 76], [46, 74], [76, 86]];
+      const tonos = ['#ece7de', '#e8e2d7', '#efebe4'];
+      return patron('vestibulo', '#d5cdbf', losasIrregulares(semillas, 5.2).map((p, i) => poligonoRep(p, tonos[i % 3], 3)).join(''));
+    },
+    // Atrio: grandes losas de mármol gris perla a matajunta, con vetas suaves
+    atrio: () => {
+      const veta = '#dcdfe4';
+      let d = `<path d="M-5 0H105M-5 50H105M-5 100H105M30 0V50M80 50V100" stroke="#d2d6dc" stroke-width="2.2"/>`;
+      d += raya('M36 18C46 12 54 24 64 16S82 10 94 20', veta, 1.6) + raya('M44 36C52 32 60 40 70 34', veta, 1.3) +
+        raya('M8 70C20 62 30 74 44 66S64 60 74 70', veta, 1.6) + raya('M86 82C90 78 96 84 100 80M0 80C4 78 8 84 14 82', veta, 1.3);
+      return patron('atrio', '#eceef1', d);
+    },
+    // Cubículo: suelo de «opus signinum» (cal y ladrillo machacado) rosado, con trocitos blancos y rosas sueltos
+    cubiculo: () => {
+      const blancos = [[8, 10, 1.6], [27, 6, 1.3], [44, 16, 1.7], [66, 9, 1.4], [86, 14, 1.6], [16, 32, 1.4], [37, 28, 1.2], [58, 34, 1.7], [79, 30, 1.3], [95, 38, 1.2],
+        [6, 52, 1.5], [26, 48, 1.7], [48, 55, 1.3], [69, 50, 1.6], [88, 58, 1.4], [14, 72, 1.3], [35, 68, 1.6], [56, 76, 1.4], [77, 70, 1.2], [94, 80, 1.6],
+        [8, 92, 1.4], [28, 88, 1.2], [47, 94, 1.6], [66, 90, 1.3], [84, 96, 1.2]];
+      const rosas = [[18, 20], [53, 24], [90, 26], [38, 42], [76, 44], [14, 62], [62, 64], [42, 82], [82, 84], [96, 6]];
+      return patron('cubiculo', '#f3dace',
+        blancos.map(([x, y, r]) => punto(x, y, r, '#fdf6f2')).join('') + rosas.map(([x, y]) => punto(x, y, 1.5, '#e7c1b1')).join(''));
+    },
+    // Cocina: ladrillitos de barro claro puestos en espiga («opus spicatum»); la espiga se repite justo cada 100, y el tono
+    // de cada ladrillo sale de su sitio dentro de la baldosa, para que el que queda partido por el borde empalme igual
+    cocinaRomana: () => {
+      const W = 12.5, g = 2, tonos = ['#f4dcc5', '#f2d6bd', '#f6e1cd'];
+      const md = (v) => Math.round((((v % 100) + 100) % 100) / W);
+      let d = '';
+      for (let m = -6; m <= 6; m++) for (let k = -12; k <= 12; k++) {
+        const ox = (k + 2 * m) * W, oy = (k - 2 * m) * W;
+        for (const [x, y, w, h, v] of [[ox, oy, 2 * W, W, 0], [ox + 2 * W, oy - W, W, 2 * W, 1]]) {
+          if (x > 100 || y > 100 || x + w < 0 || y + h < 0) continue;
+          d += `<rect x="${n2(x + g / 2)}" y="${n2(y + g / 2)}" width="${n2(w - g)}" height="${n2(h - g)}" rx="1.4" fill="${tonos[(md(x) * 7 + md(y) * 3 + v) % 3]}"/>`;
+        }
+      }
+      return patron('cocinaRomana', '#e6c3a7', d);
+    },
+    // Termas: grandes losas de mármol verdemar muy claro con ondas pintadas
+    termas: () => {
+      let d = `<path d="M-5 0H105M-5 50H105M-5 100H105M0 -5V105M50 -5V105M100 -5V105" stroke="#bfe0e6" stroke-width="2.2"/>`;
+      for (const [x, y] of [[25, 25], [75, 75]]) d += raya(`M${x - 11} ${y - 3}q5.5 -5 11 0t11 0M${x - 11} ${y + 4}q5.5 -5 11 0t11 0`, '#c4e5ea', 2.2);
+      for (const [x, y] of [[75, 25], [25, 75]]) d += punto(x - 4, y + 2, 2.2, '#cbe8ec') + punto(x + 3, y - 3, 1.6, '#cbe8ec') + punto(x + 4, y + 5, 1.2, '#cbe8ec');
+      return patron('termas', '#d9eff2', d);
+    },
+    // Tablino (el despacho): tarima de madera clara en tablas largas, con vetas y algún nudo
+    tablino: () => {
+      const veta = '#dfc192';
+      let d = '';
+      for (let f = 0; f < 5; f++) {
+        const y = f * 20, x = (f * 37 + 15) % 100;
+        d += `<path d="M-5 ${y}H105" stroke="#d6b588" stroke-width="2"/><path d="M${x} ${y}V${y + 20}" stroke="#d6b588" stroke-width="1.8"/>`;
+        d += rep(x + 5, y + 7, (X, Y) => raya(`M${X} ${Y}c12 -2.4 24 2.4 36 0s20 -2 30 0`, veta, 1.3), 80) +
+          rep(x + 18, y + 13.5, (X, Y) => raya(`M${X} ${Y}c10 2 22 -2 32 0s16 2 26 0`, veta, 1.3), 80);
+      }
+      for (const [x, y] of [[66, 30], [42, 70]]) d += `<ellipse cx="${x}" cy="${y}" rx="3.6" ry="2.2" fill="none" stroke="${veta}" stroke-width="1.3"/>` + punto(x, y, 1, veta);
+      return patron('tablino', '#ecd4ac', d);
+    },
+    // Triclinio (el comedor): losas de mármol lila claro puestas en diagonal, con vetas finas
+    triclinio: () => {
+      let d = `<path d="M-5 -5L105 105M45 -5L105 55M-5 45L55 105M-5 55L55 -5M-5 105L105 -5M45 105L105 45" stroke="#dacbe5" stroke-width="2.2"/>`;
+      d += raya('M8 26C14 22 18 30 24 26', '#e3d7ec', 1.4) + raya('M58 76C64 72 68 80 74 76', '#e3d7ec', 1.4) +
+        raya('M66 18C70 14 76 20 80 16', '#e3d7ec', 1.2) + raya('M16 66C20 62 26 68 30 64', '#e3d7ec', 1.2);
+      return patron('triclinio', '#ede5f2', d);
+    },
+    // Peristilo (el jardín): césped claro con matitas y alguna piedrecilla de grava
+    peristilo: () => {
+      const matas = [[12, 14], [52, 8], [84, 22], [30, 38], [70, 44], [8, 62], [46, 66], [88, 70], [24, 90], [64, 92]];
+      const piedras = [[34, 12, 2.2], [92, 6, 1.8], [62, 26, 1.6], [16, 44, 1.8], [88, 46, 2], [58, 58, 1.6], [28, 72, 2], [76, 82, 1.8], [44, 92, 1.6], [6, 84, 1.4]];
+      let d = matas.map(([x, y]) => rep(x, y, (X, Y) => raya(`M${X - 4} ${Y + 3}L${X - 2} ${Y - 3}M${X} ${Y + 3}V${Y - 5}M${X + 4} ${Y + 3}L${X + 2} ${Y - 3}`, '#b6d99e', 2), 8)).join('');
+      d += piedras.map(([x, y, r]) => `<ellipse cx="${x}" cy="${y}" rx="${r + 0.8}" ry="${r}" fill="#eae6d6"/>`).join('');
+      return patron('peristilo', '#d8edc6', d);
+    },
+  };
+
+  // ---------- el mosaico: casillas marcadas (los patricios siempre las pisan; los esclavos, nunca) ----------
+  const MOS = { junta: '#e1d3b8', crema: '#f4e8cf', blanco: '#fdf8ee', crema2: '#ecdcbc', negro: '#3a3036', rojo: '#c95d40' };
+  // color fijo, como al azar, de cada tesela del fondo
+  const azar = (i, j) => (((i * 73856093) ^ (j * 19349663)) >>> 0) % 7;
+  // una casilla de mosaico en 100x100: teselas de 10 crema y blancas, un rosetón encima (aro negro fino, cuatro pétalos
+  // terracota y cuatro puntos negros) y las juntas por encima de todo para que el rosetón también parezca hecho de teselas
+  function mosaico() {
+    let s = `<rect width="100" height="100" fill="${MOS.junta}"/>`;
+    for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) {
+      const h = azar(i, j);
+      s += `<rect x="${i * 10 + 0.6}" y="${j * 10 + 0.6}" width="8.8" height="8.8" rx="1" fill="${h === 0 ? MOS.crema2 : h < 3 ? MOS.blanco : MOS.crema}"/>`;
+    }
+    s += `<circle cx="50" cy="50" r="25" fill="none" stroke="${MOS.negro}" stroke-width="3.6"/>`;
+    for (const a of [0, 90, 180, 270]) s += `<ellipse cx="50" cy="38" rx="6" ry="10" fill="${MOS.rojo}" transform="rotate(${a} 50 50)"/>`;
+    for (const a of [45, 135, 225, 315]) s += `<circle cx="50" cy="39" r="2.6" fill="${MOS.negro}" transform="rotate(${a} 50 50)"/>`;
+    s += `<circle cx="50" cy="50" r="5" fill="${MOS.blanco}"/>`;
+    let d = '';
+    for (let k = 1; k < 10; k++) d += `M${k * 10} 0V100M0 ${k * 10}H100`;
+    return s + `<path d="${d}" stroke="${MOS.junta}" stroke-width="1.2"/>`;
+  }
+  // el patrón se ajusta a cada casilla (objectBoundingBox): tablero.js pone las casillas a 40 o a 14 del origen, y así el
+  // rosetón queda siempre centrado en su casilla
+  const celdaMarcada = () => `<pattern id="t-sombra" patternUnits="objectBoundingBox" width="1" height="1">${mosaico()}</pattern>`;
+  // cenefa del mosaico (se dibuja encima de cada casilla con mosaico, en los lados sin vecina con mosaico): bandas de
+  // fuera adentro [desde, hasta, color], en unidades desde el borde de la casilla. Filete negro fino, banda terracota, una
+  // tira de teselas crema y otro filete negro: así el borde de la alfombra no se confunde con los bordes de zona del
+  // tablero, que son negros y gruesos. En los rincones (dos lados con vecina) un cuarto de anillo empalma cada banda al
+  // doblar la esquina hacia dentro; si la cuarta casilla también tiene mosaico, los cuatro cuartos forman un botón en el
+  // cruce, como los adornos de los cruces de los mosaicos romanos
+  const CENEFA = [[0, 1.6, MOS.negro], [1.6, 6.5, MOS.rojo], [8, 9.6, MOS.negro]];
+  function remateMarcada(v) {
+    let s = '';
+    const rect = (x, y, w, h, color) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${color}"/>`;
+    for (const [f, t, color] of CENEFA) {
+      // cada banda va de punta a punta del lado si la casilla de al lado sigue el mosaico; si no, dobla la esquina
+      const ini = (vecina) => (vecina ? 0 : f), fin = (vecina) => (vecina ? 100 : 100 - f);
+      if (!v.arriba) s += rect(ini(v.izq), f, fin(v.der) - ini(v.izq), t - f, color);
+      if (!v.abajo) s += rect(ini(v.izq), 100 - t, fin(v.der) - ini(v.izq), t - f, color);
+      if (!v.izq) s += rect(f, ini(v.arriba), t - f, fin(v.abajo) - ini(v.arriba), color);
+      if (!v.der) s += rect(100 - t, ini(v.arriba), t - f, fin(v.abajo) - ini(v.arriba), color);
+      // rincón hacia dentro en la esquina (x, y), con la casilla hacia (sx, sy): un cuarto de anillo de radios f y t
+      const rincon = (x, y, sx, sy) => {
+        const g = sx * sy > 0 ? 1 : 0;
+        return f === 0 ? `<path d="M${x} ${y}h${sx * t}A${t} ${t} 0 0 ${g} ${x} ${y + sy * t}Z" fill="${color}"/>`
+          : `<path d="M${x + sx * f} ${y}h${sx * (t - f)}A${t} ${t} 0 0 ${g} ${x} ${y + sy * t}v${-sy * (t - f)}A${f} ${f} 0 0 ${1 - g} ${x + sx * f} ${y}Z" fill="${color}"/>`;
+      };
+      // (si la casilla en diagonal también tiene mosaico, es el interior de un bloque: sin rincón ni botón)
+      if (v.arriba && v.izq && !v.ai) s += rincon(0, 0, 1, 1);
+      if (v.arriba && v.der && !v.ad) s += rincon(100, 0, -1, 1);
+      if (v.abajo && v.izq && !v.bi) s += rincon(0, 100, 1, -1);
+      if (v.abajo && v.der && !v.bd) s += rincon(100, 100, -1, -1);
+    }
+    return s;
+  }
+  // dibujito de la regla para la ventana de normas: un trozo de mosaico enmarcado y una daga cruzada (la conjura)
+  function iconoRegla() {
+    // «pugio», el puñal corto romano: hoja ancha en forma de hoja de laurel, guarda, puño abombado y pomo
+    const daga = `<g transform="translate(52 50) rotate(45) scale(.8) translate(-50 -50)">` +
+      fig('M50 12C55 22 58.5 33 58 42C57.6 48 56 53 55.5 58H44.5C44 53 42.4 48 42 42C41.5 33 45 22 50 12Z', '#e7ebf0', 2.8) + raya('M50 20V55', '#c3cad3', 2.2) +
+      fig('M36 57H64C66.5 57 67 61.5 64.5 62.5H35.5C33 61.5 33.5 57 36 57Z', K.bronce, 2.6) +
+      fig('M45.5 62.5H54.5C56.4 67 56.4 72 54.5 76.5H45.5C43.6 72 43.6 67 45.5 62.5Z', '#d0915e', 2.6) +
+      fig('M41 76.5H59C61 76.5 61.5 81.5 58.5 82.5H41.5C38.5 81.5 39 76.5 41 76.5Z', K.bronce, 2.6) + `</g>`;
+    return `<g transform="translate(8 8) scale(.84)">${mosaico()}${remateMarcada({})}</g>` + daga;
+  }
+
+  // ---------- objetos (caja de 100x100, centrados, sin sombra; el impluvio, 200x100) ----------
+  const objetos = {
+    // cama del cubículo vista desde arriba: armazón de madera con perillas de bronce, almohada y colcha azul
+    camaRomana: () =>
+      caja(12, 6, 76, 88, 7, K.madera, 3) +
+      fig('M12 22V13C12 9 15 6 19 6H81C85 6 88 9 88 13V22Z', K.maderaOsc, 3) +
+      caja(18, 16, 64, 72, 4, K.blanco, 2.4) +
+      caja(24, 20, 52, 16, 7, '#ffffff', 2.4) + raya('M31 28H69', '#ebe3d6', 2.2) +
+      fig('M18 46H82V84C82 86.2 80.2 88 78 88H22C19.8 88 18 86.2 18 84Z', K.azul, 2.4) +
+      fig('M18 46H82V54H18Z', K.blanco, 2.2) + raya('M24 66H76M24 76H76', K.azulCl, 3) +
+      [[13, 8], [87, 8], [13, 92], [87, 92]].map(([x, y]) => circ(x, y, 4.6, K.bronce, 2.2)).join(''),
+
+    // perro guardián sentado de perfil, con collar rojo y su chapa, como el del «cave canem» pero claro
+    perro: () => {
+      const pelo = '#dcd6cf', osc = '#b3aaa1';
+      return tubo('M30 89C20 91 12 87 12 78', pelo, 5, 2.6) +
+        fig('M55 29C46 39 34 49 28 63C22 76 24 90 34 93H77C81 93 82 88 78 87L74 87L73 58C73 50 72 44 68 39Z', pelo, 3) +
+        raya('M35 92C30 82 32 69 43 64C53 60 60 69 58 81C57 87 54 90 51 93', T, 2.2) +
+        raya('M64 62V92', osc, 2.4) +
+        fig('M56 24C56 15 63 9 71 9C77 9 81 12 84 16L93 20C97 22 97 28 93 30L84 32C80 37 72 39 66 37C60 35 56 30 56 24Z', pelo, 3) +
+        fig('M61 12C55 12 51 18 52 27C53 31 57 31 59 28L64 16Z', osc, 2.4) +
+        punto(74, 19, 2, T) + `<path d="M92 20.5C95.5 20.5 97 23 95.8 25.4L92 25Z" fill="${T}"/>` + raya('M84 31.5C87.5 30.5 90 29.5 92.5 28', T, 1.6) +
+        tubo('M58 32C61 39 67 42.5 74 40.5', K.rojo, 4.6, 1.6) + circ(67, 46.5, 3.2, K.bronce, 1.6);
+    },
+
+    // horno de pan de ladrillo, como los de las panaderías de Pompeya: cúpula, boca con fuego y un pan redondo
+    horno: () => {
+      let s = fig('M6 66H94V93H6Z', K.piedra, 3) + raya('M6 80H94M30 66V80M62 66V80M18 80V93M46 80V93M78 80V93', K.piedraOsc, 2);
+      s += fig('M12 66C12 31 29 12 50 12C71 12 88 31 88 66Z', K.ladrillo, 3);
+      s += raya('M15.5 54C38 50 62 50 84.5 54M20 41C40 37.5 60 37.5 80 41M28.5 29C42 26.5 58 26.5 71.5 29M24 54V41M42 51.5V38.5M60 51.5V38.5M78 54V41M33 39.5V28M50 37.5V26.5M67 39.5V28', K.ladrilloOsc, 2);
+      s += fig('M31 66V51C31 40.5 39.5 32 50 32C60.5 32 69 40.5 69 51V66Z', K.ladrilloCl, 3);
+      s += fig('M37 66V52C37 44.8 42.8 39 50 39C57.2 39 63 44.8 63 52V66Z', '#e77d55', 2.6);
+      s += `<path d="M40 66C38 59 42 54 45 50C45 55 47 57 49 58C49 52 52 47 56 44C56 50 60 54 60 60C61 63 60 65 59 66Z" fill="${K.fuego}"/>`;
+      s += `<path d="M45 66C44 62 46 59 48 57C48.5 60 50 61.5 52 62C52 59 53.5 56.5 55.5 55C56 58 57 61 56 66Z" fill="${K.fuegoCl}"/>`;
+      // un pan redondo con sus cortes, en el poyo de delante
+      s += fig('M70 66C70 58.5 74.5 54 81 54C87.5 54 92 58.5 92 66Z', '#f0c27c', 2.4) + raya('M75.5 59.5L76.5 64M81 57V64M86.5 59.5L85.5 64', '#d39b52', 1.6);
+      return s;
+    },
+
+    // larario: templete de mármol con frontón, fondo rojo pompeyano, un lar de bronce y la serpiente pintada en el podio
+    larario: () =>
+      fig('M14 72H86V94H14Z', K.marmol, 3) + raya('M14 78H86', K.veta, 2) +
+      tubo('M22 87C28 81 33 92 39 86C45 80 50 92 56 86C62 80 67 91 73 85', K.verde, 3.2, 1.6) + circ(76, 83.5, 3, K.verde, 1.6) +
+      fig('M30 34H70V72H30Z', K.rojoCl, 3) +
+      fig('M44 66H56V71H44Z', K.bronce, 2) +
+      fig('M45.5 66L47 54C47.5 51.5 52.5 51.5 53 54L54.5 66Z', K.bronce, 2) + circ(50, 47.5, 4.2, K.bronce, 2) +
+      tubo('M52.5 55L59 49.5', K.bronce, 2.2, 1.4) + fig('M57.5 46.5L62.5 44.5L61 50.5Z', K.bronce, 1.6) +
+      fig('M21 34H31V72H21Z', K.marmol, 2.8) + fig('M69 34H79V72H69Z', K.marmol, 2.8) + raya('M26 38V68M74 38V68', K.veta, 1.8) +
+      fig('M17 28H83V34H17Z', K.marmol, 2.8) +
+      fig('M14 28L50 8L86 28Z', K.marmol, 3) + fig('M28 25L50 13L72 25Z', K.oroCl, 2) + circ(50, 20.5, 2.6, K.rojo, 1.4),
+
+    // ánfora de barro alta, de punta, metida en un soporte de bronce
+    anfora: () =>
+      tubo('M43.5 17C34 15 28 20 29.5 33', K.barro, 4.6, 2.6) + tubo('M56.5 17C66 15 72 20 70.5 33', K.barro, 4.6, 2.6) +
+      fig('M43.5 12H56.5V25C70 28 76 36 75 48C74 62 64 75 56 83L52.5 92H47.5L44 83C36 75 26 62 25 48C24 36 30 28 43.5 25Z', K.barro, 3) +
+      fig('M39 7H61V13H39Z', K.barro, 2.6) + raya('M30 40C43 44 57 44 70 40', K.barroOsc, 2) +
+      raya('M40 52L44 56M47 50L50 56M55 52L53 56', K.rojoOsc, 1.8) +
+      tubo('M24 71H76', K.bronce, 3.6, 1.6) + tubo('M28 71L22 94M72 71L78 94M50 71V94', K.bronce, 3, 1.6),
+
+    // arca de caudales: arcón de madera con flejes y clavos de bronce y una cerradura en medio
+    arcon: () => {
+      let s = fig('M12 90V94H22V90M78 90V94H88V90', K.maderaOsc, 2.6);
+      s += fig('M10 30L18 14H82L90 30Z', K.maderaCl, 3) + raya('M24 22H76', K.madera, 3);
+      s += caja(10, 30, 80, 61, 3, K.madera, 3);
+      s += fig('M10 30H90V38H10Z', K.bronce, 2.4);
+      s += fig('M20 38H28V91H20ZM72 38H80V91H72Z', K.bronce, 2.4);
+      for (const y of [46, 58, 70, 82]) s += punto(24, y, 1.6, K.bronceOsc) + punto(76, y, 1.6, K.bronceOsc);
+      for (const x of [16, 34, 50, 66, 84]) s += punto(x, 34, 1.4, K.bronceOsc);
+      s += caja(39, 48, 22, 26, 4, K.bronce, 2.6) + `<path d="M50 54.5A3.4 3.4 0 0 1 51.8 60.8L53 67H47L48.2 60.8A3.4 3.4 0 0 1 50 54.5Z" fill="${T}"/>`;
+      s += raya('M36 84H64', K.maderaOsc, 2.2);
+      return s;
+    },
+
+    // busto de mármol con corona de laurel, sobre una peana y un pedestal con su placa
+    estatuaRomana: () => {
+      const m = K.marmol, v = '#dcd6cc';
+      let s = fig('M24 88H76V95H24Z', K.marmol2, 2.8) + fig('M32 62H68V88H32Z', m, 3) + fig('M27 57H73V62H27Z', K.marmol2, 2.8);
+      s += fig('M38 67H62V83H38Z', K.oroCl, 2) + raya('M43 72H57M45 77.5H55', K.oroOsc, 1.8);
+      // peana y pecho con el pliegue de la toga
+      s += fig('M41 52H59L63 57H37Z', K.marmol2, 2.4);
+      s += fig('M25 52C25 43 31 38.5 40.5 37L45 35H55L59.5 37C69 38.5 75 43 75 52C66 55.5 34 55.5 25 52Z', m, 3) + raya('M31 48.5C39 42.5 50 43.5 58 50.5M63.5 40.5C67.5 43.5 69.5 46.5 70.5 50.5', v, 2);
+      s += fig('M44.5 28H55.5V37C52 39.5 48 39.5 44.5 37Z', m, 2.4);
+      // orejas, cabeza y pelo corto en rizos (casquete de borde ondulado)
+      s += `<ellipse cx="37.6" cy="22" rx="2.8" ry="4" fill="${m}" stroke="${T}" stroke-width="1.8"/><ellipse cx="62.4" cy="22" rx="2.8" ry="4" fill="${m}" stroke="${T}" stroke-width="1.8"/>`;
+      s += `<ellipse cx="50" cy="20" rx="12" ry="14.5" fill="${m}" stroke="${T}" stroke-width="2.8"/>`;
+      s += fig('M38.2 20.5C37.4 10.5 42.6 5.4 50 5.4C57.4 5.4 62.6 10.5 61.8 20.5C60.4 18.2 58.6 17.8 57 18.8C55.8 16.6 53.4 16.4 51.8 18C50.4 16.2 48 16.4 46.6 18.2C45.2 16.6 42.8 16.8 41.8 19C40.6 18 39.2 18.6 38.2 20.5Z', v, 2);
+      // corona de laurel: hojitas tumbadas hacia atrás a cada lado de la cabeza
+      for (const [x, y, a] of [[46, 7.4, -96], [42, 10, -118], [39.6, 14, -142], [54, 7.4, 96], [58, 10, 118], [60.4, 14, 142]]) s += hoja(x, y, a, 7.5, 2.6, K.verde, 1.1, false);
+      return s;
+    },
+
+    // mesa de trabajo de la cocina con un mortero, un pez y una cabeza de ajos
+    mesaCocina: () => {
+      let s = fig('M16 56H26V94H16ZM74 56H84V94H74Z', K.madera, 2.8) + fig('M26 80H74V86H26Z', K.maderaOsc, 2.4);
+      s += fig('M6 46H94V57H6Z', K.maderaCl, 3) + raya('M10 51.5H90', K.madera, 2);
+      // mortero (mortarium) con su mano
+      s += tubo('M30 34L40 22', K.maderaCl, 3.2, 1.6);
+      s += fig('M10 34H44C44 41 37 46 27 46C17 46 10 41 10 34Z', K.barroCl, 2.6) + fig('M44 34L49 31L47 37Z', K.barroCl, 2);
+      // pez
+      s += fig('M54 40C60 32 74 31 82 38L91 32V46L82 41C74 47 60 47 54 40Z', '#b9d4e6', 2.6) + punto(60.5, 38.5, 1.6, T) + raya('M66 36V43M72 35.5V44', '#93b6cd', 1.6);
+      // ajos
+      s += fig('M46 46C42 46 41 41 43 38C44 36 46 35 47 33C48 35 50 36 51 38C53 41 52 46 48 46Z', '#f6eef6', 2) + raya('M47 46V39', '#d9c3dd', 1.4);
+      return s;
+    },
+
+    // impluvio (dos casillas): estanque poco hondo con borde de mármol y agua clara con ondas
+    impluvio: () =>
+      caja(8, 14, 184, 72, 6, K.marmol, 3.2) +
+      raya('M56 14V27M100 14V27M144 14V27M56 86V73M100 86V73M144 86V73M8 50H22M192 50H178', K.veta, 2.2) +
+      caja(22, 27, 156, 46, 3, K.agua, 2.6) +
+      `<ellipse cx="72" cy="50" rx="16" ry="7.5" fill="none" stroke="${K.aguaCl}" stroke-width="2.4"/><ellipse cx="72" cy="50" rx="7" ry="3.2" fill="none" stroke="${K.aguaCl}" stroke-width="2.2"/>` +
+      `<ellipse cx="134" cy="44" rx="13" ry="6" fill="none" stroke="${K.aguaCl}" stroke-width="2.4"/>` +
+      raya('M118 62q6 -4 12 0t12 0M34 36q6 -4 12 0t12 0', K.aguaCl, 2.2),
+
+    // piscina de las termas vista desde arriba: borde de mármol, escalones en una esquina y un caño de bronce
+    piscina: () =>
+      caja(8, 8, 84, 84, 8, K.marmol, 3) +
+      caja(18, 18, 64, 64, 4, K.agua, 2.6) +
+      fig('M18 60H40V82H22C19.8 82 18 80.2 18 78Z', '#c6e9f5', 2.2) + raya('M18 71H29V82', K.aguaOsc, 2) +
+      raya('M50 38q6 -4 12 0t12 0M44 52q6 -4 12 0t12 0', K.aguaCl, 2.4) +
+      circ(50, 12.5, 5, K.bronce, 2.2) + raya('M50 18V24', K.aguaCl, 2.6),
+
+    // brasero de bronce de tres patas con brasas encendidas
+    brasero: () => {
+      let s = tubo('M30 54C26 66 18 80 14 92M70 54C74 66 82 80 86 92M50 56V92', K.bronce, 4, 2.4);
+      s += `<ellipse cx="14" cy="92" rx="5" ry="3.4" fill="${K.bronceOsc}" stroke="${T}" stroke-width="2"/><ellipse cx="86" cy="92" rx="5" ry="3.4" fill="${K.bronceOsc}" stroke="${T}" stroke-width="2"/><ellipse cx="50" cy="92.5" rx="5" ry="3.4" fill="${K.bronceOsc}" stroke="${T}" stroke-width="2"/>`;
+      s += tubo('M24 76H76', K.bronce, 3, 2);
+      // llamitas y brasas por encima del borde
+      s += `<path d="M28 34C26 26 31 22 34 17C35 22 38 24 40 26C41 20 45 15 50 12C50 18 54 22 57 26C59 22 62 20 64 17C66 22 72 27 70 34Z" fill="${K.fuego}" stroke="${T}" stroke-width="2.2" stroke-linejoin="round"/>`;
+      s += `<path d="M38 34C37 30 40 27 42 25C43 28 45 29 47 30C48 26 50 23 52 21C53 25 55 28 57 30C58 28 60 27 61 26C62 29 63 31 62 34Z" fill="${K.fuegoCl}"/>`;
+      s += [[24, 34, 6], [36, 32, 6.4], [50, 31, 6.6], [64, 32, 6.4], [76, 34, 6]].map(([x, y, r], i) => circ(x, y, r, i % 2 ? K.brasa : '#f28a5e', 2)).join('');
+      s += fig('M10 34H90C88 46 74 55 50 55C26 55 12 46 10 34Z', K.bronce, 3);
+      s += fig('M8 31H92V37H8Z', K.bronceCl, 2.6) + raya('M22 44C36 49 64 49 78 44', K.bronceOsc, 2);
+      return s;
+    },
+
+    // banco de mármol con patas de león en volutas (bajo, para que se vea la ficha encima)
+    bancoRomano: () => {
+      const pata = (x, s) => fig(`M${x} 58H${x + s * 18}C${x + s * 20} 66 ${x + s * 13} 70 ${x + s * 13} 77C${x + s * 13} 84 ${x + s * 19} 87 ${x + s * 19} 93H${x - s * 1}C${x + s * 1} 86 ${x + s * 3} 80 ${x + s * 3} 74C${x + s * 3} 68 ${x - s * 1} 64 ${x} 58Z`, K.marmol, 2.8) +
+        circ(x + s * 10, 66, 4, K.marmol2, 2);
+      return pata(12, 1) + pata(88, -1) + fig('M6 46H94V58H6Z', K.marmol, 3) + raya('M12 52H88', K.veta, 2);
+    },
+
+    // armario de rollos (armarium): casilleros con los rollos de pergamino y sus etiquetas
+    rollos: () => {
+      let s = fig('M14 90V95H24V90M76 90V95H86V90', K.maderaOsc, 2.4);
+      s += caja(10, 10, 80, 81, 3, K.madera, 3) + fig('M6 4H94V12H6Z', K.maderaCl, 2.8);
+      const huecos = [[16, 18], [40, 18], [64, 18], [16, 44], [40, 44], [64, 44], [16, 68], [40, 68], [64, 68]];
+      huecos.forEach(([x, y], i) => {
+        s += caja(x, y, 20, 18, 2, K.maderaOsc, 2);
+        const r = 4.1, ys = [y + 13.6, y + 13.6, y + 6.8], xs = [x + 5.2, x + 14.8, x + 10];
+        for (let k = 0; k < 3; k++) s += circ(xs[k], ys[k], r, '#f8ecd1', 1.6) + punto(xs[k], ys[k], 1.3, K.barroOsc);
+        if (i % 3 !== 1) s += fig(`M${xs[2] + 2} ${ys[2] + 2}L${xs[2] + 7} ${ys[2] + 9}L${xs[2] + 4.6} ${ys[2] + 10.6}Z`, i % 2 ? K.rojo : K.azul, 1.2);
+      });
+      return s;
+    },
+
+    // silla curul: patas de marfil cruzadas en X con pies de bronce y un cojín rojo con borlas de oro
+    sillaCurul: () =>
+      tubo('M22 54C30 74 56 80 76 90M78 54C70 74 44 80 24 90', '#f6ecd8', 6, 2.6) +
+      circ(50, 73.5, 4, K.oro, 2) +
+      fig('M16 88H32V94H16ZM68 88H84V94H68Z', K.bronce, 2.4) +
+      fig('M14 46H86V55H14Z', '#f6ecd8', 2.8) +
+      fig('M16 36C16 32 19 31 22 31H78C81 31 84 32 84 36V46H16Z', '#b47cc4', 2.8) + raya('M22 40H78', '#d6b6e0', 2.2) +
+      circ(16, 47, 3, K.oro, 1.6) + circ(84, 47, 3, K.oro, 1.6),
+
+    // lecho del triclinio para comer recostado: patas torneadas, colchón, cojines y el «fulcro» curvo de un extremo
+    lecho: () =>
+      tubo('M16 66V90M84 66V90', K.bronce, 5, 2.4, 'butt') +
+      circ(16, 78, 4.4, K.bronceCl, 2) + circ(84, 78, 4.4, K.bronceCl, 2) +
+      fig('M10 90H22V94H10ZM78 90H90V94H78Z', K.bronce, 2.2) +
+      fig('M8 58H92V67H8Z', K.madera, 2.8) +
+      caja(10, 46, 80, 14, 6, K.azul, 2.6) + raya('M18 53H84', K.azulCl, 2.4) +
+      fig('M10 58C6 50 5 40 9 32C12 26 19 25 22 30C24 34 21 38 17 37C15 42 16 50 20 58Z', K.madera, 2.6) + circ(15.6, 32.5, 3, K.bronce, 1.4) +
+      fig('M24 47C22 40 26 35 32 36L48 38C52 39 52 46 48 47Z', K.oro, 2.4) +
+      fig('M68 47C66 41 70 37 75 38L85 40C89 41 89 46 85 47Z', K.verde, 2.4),
+
+    // mesita redonda de tres patas de bronce (mensa delphica) con un cuenco de fruta
+    mesitaRomana: () => {
+      let s = tubo('M28 50C22 60 30 72 18 90M72 50C78 60 70 72 82 90M50 52V90', K.bronce, 4, 2.4);
+      s += fig('M12 90H24V94H12ZM76 90H88V94H76ZM44 90H56V94H44Z', K.bronceOsc, 2);
+      s += `<ellipse cx="50" cy="46" rx="38" ry="7" fill="${K.marmol}" stroke="${T}" stroke-width="3"/>`;
+      s += raya('M16 48.5C30 53 70 53 84 48.5', K.veta, 2);
+      // uvas y manzanas en un cuenco
+      s += [[40, 26], [46, 22], [52, 25], [43, 31], [49, 30]].map(([x, y]) => circ(x, y, 4, '#b48ad6', 1.6)).join('');
+      s += circ(58, 28, 6, K.rojo, 1.8) + circ(64, 32, 5, '#b8d86a', 1.8);
+      s += fig('M32 33H68C67 39 60 42 50 42C40 42 33 39 32 33Z', K.bronce, 2.4);
+      return s;
+    },
+
+    // columna jónica de mármol: basa, fuste estriado y capitel con volutas
+    columna: () =>
+      fig('M26 88H74V95H26Z', K.marmol2, 2.8) + fig('M30 82H70C72 82 73 88 71 88H29C27 88 28 82 30 82Z', K.marmol, 2.6) +
+      fig('M34 22H66V82H34Z', K.marmol, 3) + raya('M40 26V78M46 26V78M54 26V78M60 26V78', K.veta, 2) +
+      fig('M24 14H76V23H24Z', K.marmol, 2.8) +
+      circ(25, 21, 7, K.marmol, 2.6) + circ(75, 21, 7, K.marmol, 2.6) + circ(25, 21, 2.6, K.veta, 1.4) + circ(75, 21, 2.6, K.veta, 1.4) +
+      fig('M28 7H72V14H28Z', K.marmol2, 2.6),
+
+    // laurel podado en bola, en una maceta de barro: copa de matas redondas con un solo contorno, hojitas y unas bayas
+    laurel: () => {
+      const matas = [[50, 15, 12], [35, 22, 11.5], [65, 22, 11.5], [27, 36, 11.5], [73, 36, 11.5], [36, 48, 11.5], [64, 48, 11.5], [50, 50, 11], [50, 33, 17]]
+        .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('');
+      let s = fig('M46.5 56H53.5V70H46.5Z', K.maderaOsc, 2.2);
+      s += fig('M30 70H70L65 94H35Z', K.barro, 3) + fig('M27 66H73V73H27Z', K.barroCl, 2.6) + raya('M35 82H65', K.barroOsc, 2);
+      s += `<g fill="${T}" stroke="${T}" stroke-width="6">${matas}</g><g fill="${K.verde}">${matas}</g>`;
+      for (const [x, y, a] of [[34, 18, -40], [50, 10, 0], [66, 18, 40], [24, 33, -80], [76, 33, 80], [31, 47, -130], [69, 47, 130], [50, 52, 180], [42, 27, -25], [58, 27, 25], [40, 40, -110], [60, 40, 110], [50, 34, 10]])
+        s += hoja(x, y, a, 10, 3.4, K.verdeCl, 1.2, false);
+      s += [[44, 20], [61, 38], [33, 30], [55, 46]].map(([x, y]) => circ(x, y, 2.1, '#8a78b8', 1.2)).join('');
+      return s;
+    },
+
+    // fuente de jardín: pila de mármol sobre un pie estriado y, en medio, una taza alta con un surtidor que se abre en
+    // dos chorros hacia los lados
+    fuenteRomana: () =>
+      fig('M30 88H70V95H30Z', K.marmol2, 2.8) + fig('M40 70H60V88H40Z', K.marmol, 2.8) + raya('M45 73V86M50 73V86M55 73V86', K.veta, 1.6) +
+      fig('M8 54H92C90 66 74 72 50 72C26 72 10 66 8 54Z', K.marmol, 3) +
+      fig('M12 54C12 50 30 48 50 48C70 48 88 50 88 54Z', K.agua, 2.4) +
+      raya('M20 51.5q3 -2.4 6 0M74 51.5q3 -2.4 6 0', K.aguaCl, 1.8) +
+      fig('M46 34H54V51H46Z', K.marmol, 2.4) +
+      fig('M30 30H70C69 35 61 38 50 38C39 38 31 35 30 30Z', K.marmol, 2.6) +
+      tubo('M50 29V10M50 10C43 8.5 37 13 34.5 21M50 10C57 8.5 63 13 65.5 21', K.agua, 2.6, 1.8) +
+      circ(31.5, 25.5, 1.9, K.aguaCl, 1.3) + circ(68.5, 25.5, 1.9, K.aguaCl, 1.3) + circ(50, 5.2, 2.4, K.aguaCl, 1.3),
+  };
+
+  // ---------- retratos (100x100, de hombros arriba, SIN CARA, como en el libro) ----------
+  const forma = (d, relleno, w = 2, borde = T) => `<path d="${d}" fill="${relleno}" stroke="${borde}" stroke-width="${w}" stroke-linejoin="round"/>`;
+  const mancha = (d, relleno) => `<path d="${d}" fill="${relleno}"/>`;
+  const linea = (d, color, w = 2) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  // tira con contorno (cinta, diadema, collar)
+  const tira = (d, color, w = 3, borde = 1.3) => linea(d, T, w + 2 * borde) + linea(d, color, w);
+  const circulos = (lista, relleno) => lista.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${relleno}"/>`).join('');
+  // trenza: eslabones de pelo alternos a lo largo de una lista de puntos
+  const trenza = (puntos, pelo, peloOsc, rx = 4.4, ry = 3.4) => puntos.map(([x, y, a], i) => {
+    const k = i % 2 ? -1 : 1;
+    return `<ellipse cx="${n1(x)}" cy="${n1(y)}" rx="${rx}" ry="${ry}" transform="rotate(${n1((a || 0) + k * 24)} ${n1(x)} ${n1(y)})" fill="${pelo}" stroke="${peloOsc}" stroke-width="1.3"/>`;
+  }).join('');
+  // toga blanca: el pliegue que cruza el pecho desde el hombro izquierdo (a la derecha del que mira) hasta el costado
+  const pliegueToga = (blanco, osc, borde) =>
+    forma('M62 76C74 78 86 84 90 94C78 92 62 90 48 92C40 93 32 96 28 100H18C26 92 36 86 48 82C54 80 58 78 62 76Z', blanco, 1.6) +
+    (borde ? linea('M90 94C78 92 62 90 48 92C40 93 32 96 28 100', borde, 3.2) : '') +
+    linea('M70 82C62 84 54 86 46 88M78 86C70 87 60 87 52 89', osc, 1.4);
+
+  const retratos = {
+    // Aurelia, matrona patricia: pelo castaño rojizo con raya en medio y moño alto envuelto en cintas, estola lila y palla
+    // rosada sobre el hombro, pendientes de oro
+    aurelia: () => {
+      const pelo = '#a95c33', peloOsc = '#86441f', estola = '#c9b2e8', palla = '#f3d3cb', pallaOsc = '#dfb1a6', cinta = '#d6564a';
+      return `<circle cx="50" cy="17" r="9.5" fill="${pelo}" stroke="${T}" stroke-width="1.8"/>` +
+        linea('M44 16C45 11.5 51.5 10 55 13C58 16 56 21.5 51 21C47.5 20.6 46.8 16.4 49.8 15.4', peloOsc, 1.5) +
+        B.cuerpo(estola, forma('M9 98C12 88 20 81 33 77.5L40 75C44 82 50 90 58 100H10Z', palla, 1.6) +
+          linea('M20 90C26 86 32 84 38 83M26 97C32 92 40 90 46 90', pallaOsc, 1.4) + linea('M58 76C63 80 68 81 74 80', '#ad94d3', 1.4)) +
+        B.cuello() + B.cara() +
+        mancha('M33 46C30 31 38 22 50 22C62 22 70 31 67 46C65 38 61 34 56 33C53 32.5 51 31 50 29C49 31 47 32.5 44 33C39 34 35 38 33 46Z', pelo) +
+        mancha('M33.6 40.5C30.8 42.5 30.2 47.5 31.8 50.6C32.8 49 34.6 48.2 36.6 48.6L37.6 41.5Z M66.4 40.5C69.2 42.5 69.8 47.5 68.2 50.6C67.2 49 65.4 48.2 63.4 48.6L62.4 41.5Z', pelo) +
+        linea('M37 36C40 33 43 33 46 34.5M63 36C60 33 57 33 54 34.5', peloOsc, 1.3) +
+        tira('M34.5 31C40 25 60 25 65.5 31', cinta, 2, 1.1) +
+        linea('M33.5 50.5V55.5M66.5 50.5V55.5', K.oroOsc, 1.2) + circ(33.5, 57, 1.9, K.oro, 1) + circ(66.5, 57, 1.9, K.oro, 1);
+    },
+    // Baucis, esclava mayor: pañuelo verde salvia anudado en la nuca, canas en las sienes y túnica de lino crudo
+    baucis: () => {
+      const panuelo = '#a9c592', panOsc = '#86a86f', tunica = '#e9ddc4', tunOsc = '#cdbd9c', canas = '#e7e3dc';
+      return forma('M64 52L76 60L72 66L62 58Z', panuelo, 1.6) + forma('M63 55L71 70L65 71L61 59Z', panuelo, 1.6) +
+        B.cuerpo(tunica, linea('M39 75.5C44 81.5 56 81.5 61 75.5', tunOsc, 2.2) + linea('M50 81V100', tunOsc, 1.6)) +
+        B.cuello(C.piel2Osc) + B.cara(C.piel2) +
+        mancha('M33.6 46C33 41 34 37.5 36.5 35.5L38 47Z M66.4 46C67 41 66 37.5 63.5 35.5L62 47Z', canas) +
+        forma('M31.5 47C27.5 30 38 18.5 50 18.5C62 18.5 72.5 30 68.5 47C66.5 38 60.5 32.5 50 32.5C39.5 32.5 33.5 38 31.5 47Z', panuelo, 1.8) +
+        linea('M37 25C43 22 57 22 63 25M34.5 32C40 28 60 28 65.5 32', panOsc, 1.3) +
+        punto(42, 27.5, 1.2, '#f3f7ee') + punto(50, 25.5, 1.2, '#f3f7ee') + punto(58, 27.5, 1.2, '#f3f7ee');
+    },
+    // Cornelia, joven patricia conjurada: pelo oscuro con diadema de oro, palla coral que le cubre la cabeza y cae por los
+    // hombros, estola verde agua y una fíbula de oro con piedra roja
+    cornelia: () => {
+      const palla = '#ef9d8c', pallaOsc = '#d47f6e', estola = '#8ccac3', pelo = '#3b2b29';
+      return forma('M25 84C20 63 22 38 29 27C34 19 42 15 50 15C58 15 66 19 71 27C78 38 80 63 75 84C68 88 32 88 25 84Z', palla, 1.8) +
+        linea('M29 78C27 66 27 50 30 40M71 78C73 66 73 50 70 40', pallaOsc, 1.5) +
+        B.cuerpo(estola, forma('M8 100C10 86 22 78 38 76L42 74C38 84 34 92 32 100Z', palla, 1.6) + forma('M92 100C90 86 78 78 62 76L58 74C62 84 66 92 68 100Z', palla, 1.6) +
+          circ(37, 82, 4, K.oro, 1.5) + circ(37, 82, 1.9, '#d8465a', 1)) +
+        B.cuello() + B.cara() +
+        mancha('M33.5 46C31.5 34 39 27.5 50 27.5C61 27.5 68.5 34 66.5 46C64 39.5 59.5 36 54.5 35.5C52.5 35.2 51 34 50 32.5C49 34 47.5 35.2 45.5 35.5C40.5 36 36 39.5 33.5 46Z', pelo) +
+        forma('M29.5 44C27.5 30 37 21 50 21C63 21 72.5 30 70.5 44C67.5 34 60 28.2 50 28.2C40 28.2 32.5 34 29.5 44Z', palla, 1.8) +
+        tira('M35 37C39.5 30.5 60.5 30.5 65 37', K.oro, 2.2, 1.1) + circ(50, 32, 1.9, '#d8465a', 1);
+    },
+    // Décimo, senador conjurado: pelo corto entrecano con entradas y toga blanca; asoma la franja púrpura de la túnica
+    // (la laticlavia de los senadores)
+    decimo: () => {
+      const toga = '#f8f4ec', togaOsc = '#d9d0c1', purpura = '#9b52a0', pelo = '#8a807b', peloOsc = '#6d635e';
+      return B.cuerpo(toga, forma('M41 74.5L44 72.5H56L59 74.5L60.5 100H39.5Z', '#efe8dc', 1.4) +
+          mancha('M53.5 73H58.5L60 100H55Z', purpura) + pliegueToga(toga, togaOsc)) +
+        B.cuello(C.piel2Osc) + B.cara(C.piel2) +
+        mancha('M33.4 44C31.5 33 38 24.5 50 24.5C62 24.5 68.5 33 66.6 44C65.5 39 63.5 36 60.5 34C57.5 35.6 53.5 34.5 50 32.6C46.5 34.5 42.5 35.6 39.5 34C36.5 36 34.5 39 33.4 44Z', pelo) +
+        linea('M38 30C41 28 44 27.5 47 28M53 28C56 27.5 59 28 62 30', peloOsc, 1.2);
+    },
+    // Eros, esclavo joven: pelo corto muy rizado y túnica mostaza
+    eros: () => {
+      const pelo = '#2f2727', tunica = '#efc35c', tunOsc = '#d2a33e';
+      const tras = [[34, 37, 6.5], [36, 28, 7], [43, 22, 7.5], [50, 20, 7.5], [57, 22, 7.5], [64, 28, 7], [66, 37, 6.5]];
+      const delante = [[37, 33, 4.6], [42.5, 28.5, 5], [48.5, 26.8, 5.2], [54.5, 27.2, 5], [60.5, 30, 4.8], [64, 34.6, 4.2]];
+      return circulos(tras, pelo) +
+        B.cuerpo(tunica, linea('M38.5 75.5C44 82 56 82 61.5 75.5', tunOsc, 2.4)) +
+        B.cuello(C.piel3Osc) + B.cara(C.piel3) + circulos(delante, pelo);
+    },
+    // Flavio, senador anciano: calvo, con pelo blanco y esponjoso a los lados, y toga con borde púrpura
+    flavio: () => {
+      const toga = '#f8f4ec', togaOsc = '#d9d0c1', purpura = '#9b52a0', canas = '#f4f2ee', canasOsc = '#cfc9bf';
+      // el pelo de los lados va detrás de la cara, pegado a la cabeza y con el borde de fuera esponjoso; las orejas, encima
+      const lado = (s) => {
+        const X = (x) => n1(50 + s * (x - 50));
+        return forma(`M${X(38.5)} 28.5C${X(34)} 28 ${X(30.6)} 31 ${X(30.2)} 34.6C${X(27.6)} 35.8 ${X(26.8)} 39.4 ${X(28.4)} 42C${X(26.6)} 44.2 ${X(27)} 48.4 ${X(29.6)} 49.8C${X(29.2)} 53 ${X(31.8)} 56 ${X(35.4)} 55.4L${X(39)} 44Z`, canas, 1.3, canasOsc);
+      };
+      return B.cuerpo(toga, linea('M40 75C44 79 56 79 60 75', togaOsc, 1.6) + pliegueToga(toga, togaOsc, purpura)) +
+        B.cuello() + lado(1) + lado(-1) + B.cara(C.piel, 16.5, 21, 43.5) +
+        linea('M42 26.5C45 25 48 24.6 51 24.8', C.pielOsc, 1.3);
+    },
+    // Glauco, el cocinero: cabeza afeitada, barba corta, túnica terracota con delantal y un paño al hombro
+    glauco: () => {
+      const tunica = '#d98f66', delantal = '#f6efe1', delOsc = '#ddd2be', barba = '#3b2d26', pano = '#ffffff', rayaPano = '#86b6e0';
+      return B.cuerpo(tunica, forma('M37 84C37 81 39 79.5 42 79.5H58C61 79.5 63 81 63 84V100H37Z', delantal, 1.6) +
+          linea('M40 80L44 73M60 80L56 73', delOsc, 2.2) +
+          forma('M70 79L80 82L77 100H67L69 88Z', pano, 1.5) + linea('M71 84L79 86M70 90L78 92', rayaPano, 1.6)) +
+        B.cuello(C.piel3Osc) + B.cara(C.piel3) +
+        mancha('M35.5 50C35.5 63 41.5 72 50 74C58.5 72 64.5 63 64.5 50C62 56 57 59 50 59C43 59 38 56 35.5 50Z', barba) +
+        mancha('M41 55C45 52.5 48 52.5 50 53.6C52 52.5 55 52.5 59 55C56 57.2 53 57.2 50 56.4C47 57.2 44 57.2 41 55Z', barba) +
+        linea('M41 27.5C44 26 47 25.5 50 25.6', C.piel3Osc, 1.4);
+    },
+    // Hortensia, joven patricia: pelo rubio con una trenza en corona, pendientes de perla y collar de oro, estola azul
+    hortensia: () => {
+      const pelo = '#f0c65c', peloOsc = '#cf9c32', estola = '#93c1ea';
+      const corona = [];
+      for (let k = 0; k <= 8; k++) {
+        const t = Math.PI * (1 - k / 8), x = 50 + 18.5 * Math.cos(t), y = 36 - 13 * Math.sin(t);
+        corona.push([x, y, (k / 8 - 0.5) * 150]);
+      }
+      return B.cuerpo(estola, linea('M38 76C43 80 57 80 62 76', '#79a9d8', 1.6)) + B.cuello() +
+        tira('M40 74C44 81 56 81 60 74', K.oro, 1.8, 1) + circ(50, 82.5, 2.6, '#d8465a', 1.2) +
+        B.cara() +
+        mancha('M33 46C30 31 38 23 50 23C62 23 70 31 67 46C65 38 60 33.5 50 33.5C40 33.5 35 38 33 46Z', pelo) +
+        mancha('M33.4 44C32 47 32.5 51 34.5 53.5L37 45Z M66.6 44C68 47 67.5 51 65.5 53.5L63 45Z', pelo) +
+        trenza(corona, pelo, peloOsc, 4.6, 3.6) +
+        linea('M33.5 51V55M66.5 51V55', K.oroOsc, 1.1) + circ(33.5, 57, 2.1, '#fbf7ee', 1) + circ(66.5, 57, 2.1, '#fbf7ee', 1);
+    },
+    // Icilio, tribuno conjurado: pelo corto con flequillo, coraza de bronce y capa militar roja (paludamento) prendida en
+    // el hombro con una fíbula de oro
+    icilio: () => {
+      const capa = '#dc6150', capaOsc = '#b84a3c', coraza = '#eabd6c', corOsc = '#c9963f', pelo = '#4a3426';
+      return B.cuerpo(coraza, linea('M42 86C45 89 48.5 89 50 87C51.5 89 55 89 58 86M44 95C47 97 53 97 56 95', corOsc, 1.6) +
+          forma('M8 100C10 86 22 78 38 76L42 75C38 82 33 90 30 100Z', capa, 1.6) +
+          forma('M92 100C90 86 78 78 62 76L59 75C62 80 66 84 70 86L76 100Z', capa, 1.6) +
+          linea('M18 92C22 86 28 82 34 80M84 94C82 88 78 84 72 82', capaOsc, 1.4) +
+          circ(64, 79.5, 4.2, K.oro, 1.5) + punto(64, 79.5, 1.6, K.oroOsc)) +
+        B.cuello(C.piel2Osc) + B.cara(C.piel2) +
+        mancha('M33.2 43C31 28 38 21 50 21C62 21 69 28 66.8 43C66 38.5 64.5 35.5 62.5 34L60.5 37L58 33.8L55.4 37L52.8 33.8L50 37L47.2 33.8L44.6 37L42 33.8L39.5 37L37.5 34C35.5 35.5 34 38.5 33.2 43Z', pelo);
+    },
+    // Jacinto, el paje: muchacho pelirrojo con flequillo de tazón y túnica verde
+    jacinto: () => {
+      const pelo = '#cf8443', peloOsc = '#ad6630', tunica = '#9fd27e', tunOsc = '#7cb95b';
+      return B.cuerpo(tunica, linea('M39 75.5C44 81 56 81 61 75.5', tunOsc, 2.4)) +
+        B.cuello(C.piel2Osc) + B.cara(C.piel2, 15.5, 19.5, 45) +
+        mancha('M33.6 47C31 31 39 24 50 24C61 24 69 31 66.4 47C66 43.5 65.2 41.4 64.2 40.2L61.6 41.8L59 39.6L56 41.8L53 39.6L50 41.8L47 39.6L44 41.8L41 39.6L38.4 41.8L35.8 40.2C34.8 41.4 34 43.5 33.6 47Z', pelo) +
+        linea('M41 31.5L42 37M47 30.5L47.6 37.5M53 30.5L52.4 37.5M59 31.5L58 37', peloOsc, 1.2);
+    },
+  };
+
+  // ---------- fondos de las cartas: medallón con laurel (patricio), tablilla (esclavo), carta sellada (conjurado) ----------
+  // corona de laurel: dos ramas que suben por los lados de un círculo de centro (cx, cy) y radio r
+  const coronaLaurel = (cx, cy, r) => {
+    let s = '';
+    for (const lado of [-1, 1]) {
+      let tallo = '';
+      for (let k = 0; k <= 10; k++) {
+        const a = ((200 - k * 15) * Math.PI) / 180;   // de abajo (200°) hacia arriba (50°), medido desde arriba
+        const x = cx + lado * r * Math.sin(a), y = cy - r * Math.cos(a);
+        tallo += (k ? 'L' : 'M') + n1(x) + ' ' + n1(y);
+      }
+      s += linea(tallo, '#7aae63', 1.8);
+      for (let k = 0; k < 10; k++) {
+        const g = 197 - k * 15, a = (g * Math.PI) / 180;
+        const x = cx + lado * r * Math.sin(a), y = cy - r * Math.cos(a);
+        const rumbo = lado * (180 - g);   // hacia donde avanza la rama
+        s += hoja(x, y, rumbo - lado * 34, 9, 3, '#a9d48e', 1.2, false) + hoja(x, y, rumbo + lado * 30, 9, 3, '#93c779', 1.2, false);
+      }
+    }
+    return s;
+  };
+  const fondos = {
+    // patricio: medallón de mármol con una corona de laurel
+    P: () => `<circle cx="50" cy="47" r="44.5" fill="#f2ede4" stroke="#cbc1b2" stroke-width="2.4"/>` +
+      `<circle cx="50" cy="47" r="35" fill="#fbf8f2" stroke="#e0d7c9" stroke-width="2"/>` + coronaLaurel(50, 47, 40),
+    // esclavo: tablilla de barro sencilla, de bordes un poco abombados, con unas rayas escritas y el agujero para colgarla
+    E: () => `<path d="M12 8C30 5 70 5 88 8C91 30 91 70 88 92C70 95 30 95 12 92C9 70 9 30 12 8Z" fill="#f2cdb1" stroke="#c99170" stroke-width="2.4" stroke-linejoin="round"/>` +
+      `<path d="M18 14C34 12 66 12 82 14C84 34 84 66 82 86C66 88 34 88 18 86C16 66 16 34 18 14Z" fill="none" stroke="#e2b494" stroke-width="2"/>` +
+      `<path d="M25 30H58M25 39H72M25 48H50" stroke="#dfae8e" stroke-width="2.2" stroke-linecap="round"/>` +
+      `<circle cx="50" cy="20.5" r="3" fill="#e9bc9e" stroke="#c99170" stroke-width="1.6"/>`,
+    // conjurado: carta secreta de pergamino enrollada arriba y abajo, cerrada con un sello de lacre rojo
+    C: () => `<rect x="14" y="10" width="72" height="80" fill="#f7e9c8" stroke="#cfb07a" stroke-width="2"/>` +
+      `<path d="M22 24H66M22 32H74M22 40H58" stroke="#e3cc9c" stroke-width="2" stroke-linecap="round"/>` +
+      `<rect x="8" y="4" width="84" height="10" rx="5" fill="#ecd7a8" stroke="#c4a36d" stroke-width="2"/>` +
+      `<rect x="8" y="86" width="84" height="10" rx="5" fill="#ecd7a8" stroke="#c4a36d" stroke-width="2"/>` +
+      `<path d="M84 60L90 78L86 76L84 80L82 76L78 78Z" fill="#d9574a" stroke="#a93b33" stroke-width="1.2" stroke-linejoin="round"/>` +
+      `<circle cx="84" cy="56" r="8" fill="#d9574a" stroke="#a93b33" stroke-width="1.8"/>` +
+      `<path d="M84 50.5V61.5M80.5 54H87.5" stroke="#a93b33" stroke-width="1.8" stroke-linecap="round"/>`,
+  };
+
+  raiz.ARTE_MUNDOS.roma = {
+    // colores de la página: papel de mármol cálido, tinta oscura de siempre y acento rojo pompeyano (botones con texto blanco)
+    paleta: { papel: '#f4ede2', papel2: '#eadfcd', tinta: '#2c2531', tinta2: '#5b4a46', acento: '#a8392d', acento2: '#8a2e24', marco: '#faf5ec' },
+    texturas, objetos, retratos, fondos, marcos: {},
+    celdaMarcada, remateMarcada, iconoRegla,
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+// Dibujo genérico de la escena del crimen de cualquier mundo de «Crímenes de época» (parte fija del tablero):
+// texturas de zona, rejilla, bordes de zona (las zonas especiales con el color de su marco), sombra (Oeste), objetos,
+// rótulos (colocados solos o a mano en caso.rotulos) y coordenadas. Casillas de 100 unidades.
+(function (raiz) {
+  'use strict';
+  const COLS = 'ABCDEFGHIJKL';
+  // posición automática de los rótulos: abajo de la zona, sobre casillas sin objeto si se puede
+  function rotulosAuto(caso) {
+    const N = caso.N, out = [];
+    const zonas = [...new Set(caso.zonas.join(''))];
+    for (const z of zonas) {
+      const txt = caso.zonasInfo[z].nombre.toUpperCase(), ancho = (22 + txt.length * 15.5) / 100;   // en casillas
+      let mejor = null;
+      for (let f = N - 1; f >= 0; f--) {
+        for (let c = 0; c < N; c++) {
+          if (caso.zonas[f][c] !== z) continue;
+          // tramo horizontal de la zona en esa fila que empieza en c
+          let fin = c;
+          while (fin + 1 < N && caso.zonas[f][fin + 1] === z) fin++;
+          const largo = fin - c + 1;
+          for (let a = c; a <= fin; a++) for (let b = a; b <= fin; b++) {
+            const tramo = b - a + 1;
+            const cx = (a + b + 1) / 2;
+            const cabe = tramo >= ancho - 0.2 || largo === tramo;
+            const libres = [...Array(tramo).keys()].filter((t) => caso.objetos[f][a + t] === '.').length;
+            const nota = (cabe ? 10 : 0) + libres * 2 - tramo * 0.5 + f * 0.3 - Math.abs(tramo - ancho) * 0.4;
+            if (!mejor || nota > mejor.nota) mejor = { nota, x: cx, y: f + 0.76 };
+          }
+          c = fin;
+        }
+      }
+      out.push({ z, x: mejor.x, y: mejor.y });
+    }
+    return out;
+  }
+  function escena(caso, arte, op = {}) {
+    const N = caso.N, ML = op.coords ? 40 : 14, MT = op.coords ? 40 : 14, MR = 14, MB = 14;
+    const W = ML + N * 100 + MR, H = MT + N * 100 + MB;
+    const z = (f, c) => (f < 0 || c < 0 || f >= N || c >= N ? null : caso.zonas[f][c]);
+    const o = (f, c) => caso.objetos[f][c];
+    const X = (c) => ML + c * 100, Y = (f) => MT + f * 100;
+    const tipo = (zz) => (zz && caso.zonasInfo[zz] && caso.zonasInfo[zz].tipo) || null;
+    const tinta = (arte.paleta && arte.paleta.tinta) || '#2c2531';
+    const texUsadas = [...new Set(Object.values(caso.zonasInfo).map((i) => i.tex))];
+    let s = '<defs>' + texUsadas.map((t) => { if (!arte.texturas[t]) throw new Error('falta la textura ' + t); return arte.texturas[t](); }).join('') +
+      // casillas marcadas: la sombra rayada del Oeste, o lo que dé el mundo (arte.celdaMarcada: los mosaicos de Roma)
+      (arte.celdaMarcada ? arte.celdaMarcada() : `<pattern id="t-sombra" patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(45)"><rect width="16" height="16" fill="#30406a" opacity=".13"/><line x1="0" y1="0" x2="0" y2="16" stroke="#30406a" stroke-width="5" opacity=".22"/></pattern>`) + '</defs>';
+    s += `<rect x="${ML - 12}" y="${MT - 12}" width="${N * 100 + 24}" height="${N * 100 + 24}" rx="12" fill="${(arte.paleta && arte.paleta.marco) || '#f4eef7'}"/>`;
+    for (let f = 0; f < N; f++) for (let c = 0; c < N; c++) s += `<rect x="${X(c)}" y="${Y(f)}" width="100" height="100" fill="url(#t-${caso.zonasInfo[z(f, c)].tex})"/>`;
+    // sombra (Oeste) o mosaicos (Roma); el mundo puede añadir un remate encima (arte.remateMarcada: borde del mosaico)
+    if (caso.sombra) for (let f = 0; f < N; f++) for (let c = 0; c < N; c++) if (caso.sombra[f][c] === 's') {
+      s += `<rect x="${X(c)}" y="${Y(f)}" width="100" height="100" fill="url(#t-sombra)"/>`;
+      const m = (ff, cc) => ff >= 0 && cc >= 0 && ff < N && cc < N && caso.sombra[ff][cc] === 's';
+      // vecinas con mosaico: las cuatro de los lados y las cuatro en diagonal (para no adornar el interior de un bloque)
+      if (arte.remateMarcada) s += `<g transform="translate(${X(c)} ${Y(f)})">${arte.remateMarcada({ arriba: m(f - 1, c), abajo: m(f + 1, c), izq: m(f, c - 1), der: m(f, c + 1), ai: m(f - 1, c - 1), ad: m(f - 1, c + 1), bi: m(f + 1, c - 1), bd: m(f + 1, c + 1) })}</g>`;
+    }
+    let r = '';
+    for (let k = 1; k < N; k++) r += `M${X(k)} ${Y(0)}V${Y(N)}M${X(0)} ${Y(k)}H${X(N)}`;
+    s += `<path d="${r}" stroke="${tinta}" stroke-width="2.2" opacity=".35"/>`;
+    // bordes: oscuros entre zonas normales; del color del marco si toca una zona especial
+    const tramos = { '': '' };
+    const segm = (d, t) => { tramos[t || ''] = (tramos[t || ''] || '') + d; };
+    for (let f = 0; f < N; f++) for (let c = 0; c < N; c++) {
+      const a = z(f, c);
+      const d = z(f, c + 1);
+      if (d !== a) segm(`M${X(c + 1)} ${Y(f)}V${Y(f + 1)}`, tipo(a) || tipo(d));
+      const b = z(f + 1, c);
+      if (b !== a) segm(`M${X(c)} ${Y(f + 1)}H${X(c + 1)}`, tipo(a) || tipo(b));
+      if (f === 0) segm(`M${X(c)} ${Y(0)}H${X(c + 1)}`, tipo(a));
+      if (c === 0) segm(`M${X(0)} ${Y(f)}V${Y(f + 1)}`, tipo(a));
+    }
+    s += `<path d="${tramos['']}" stroke="${tinta}" stroke-width="7" stroke-linecap="square" fill="none"/>`;
+    for (const [t, d] of Object.entries(tramos)) {
+      if (!t || !d) continue;
+      const m = (arte.marcos || {})[t] || { color: '#8a5fb6' };
+      if (m.rayas) s += `<path d="${d}" stroke="${m.rayas[0]}" stroke-width="11" stroke-linecap="square" fill="none"/><path d="${d}" stroke="${m.rayas[1]}" stroke-width="11" stroke-dasharray="14 14" fill="none"/>`;
+      else s += `<path d="${d}" stroke="${m.color}" stroke-width="10" stroke-linecap="square" fill="none"/>`;
+    }
+    // objetos
+    for (let f = 0; f < N; f++) for (let c = 0; c < N; c++) {
+      const t = o(f, c);
+      if (t === '.') continue;
+      const inf = caso.objetosInfo[t];
+      const fn = arte.objetos[inf.dib];
+      if (!fn) throw new Error('falta el objeto ' + inf.dib);
+      if (inf.ancho === 2) { if (c > 0 && o(f, c - 1) === t) continue; s += `<g transform="translate(${X(c)} ${Y(f)})">${fn({ zona: z(f, c), tipo: tipo(z(f, c)) })}</g>`; continue; }
+      s += `<g transform="translate(${X(c) + 3} ${Y(f) + 3}) scale(.94)">${fn({ zona: z(f, c), tipo: tipo(z(f, c)) })}</g>`;
+    }
+    // rótulos
+    const rotulos = caso.rotulos || rotulosAuto(caso);
+    // cada rótulo: {z, x, y} en casillas; fs: escala de la letra; partir: en dos líneas
+    for (const ro of rotulos) {
+      const nombre = caso.zonasInfo[ro.z].nombre.toUpperCase(), fs = ro.fs || 1;
+      let lineas = [nombre];
+      if (ro.partir) { const pal = nombre.split(' '), mitad = typeof ro.partir === 'number' ? ro.partir : Math.ceil(pal.length / 2); lineas = [pal.slice(0, mitad).join(' '), pal.slice(mitad).join(' ')]; }
+      const w = (22 + Math.max(...lineas.map((l) => l.length)) * 15.5) * fs, h = (8 + lineas.length * 28) * fs;
+      const cx = ML + ro.x * 100, cy = MT + ro.y * 100;
+      const t = tipo(ro.z), m = t && (arte.marcos || {})[t];
+      s += '<g class="rotulo">';
+      if (m && m.icono) s += `<g transform="translate(${cx - 16} ${cy - h / 2 - 26}) scale(.66)">${m.icono()}</g>`;
+      s += `<rect x="${cx - w / 2}" y="${cy - h / 2}" width="${w}" height="${h}" rx="10" fill="#fbf8f2" stroke="${tinta}" stroke-width="3"/>`;
+      lineas.forEach((l, n) => { s += `<text x="${cx}" y="${cy - h / 2 + (13 + 28 * n + 15) * fs}" text-anchor="middle" font-family="Alegreya SC, Alegreya, Georgia, serif" font-weight="700" font-size="${26 * fs}" fill="${tinta}" letter-spacing=".5">${l}</text>`; });
+      s += '</g>';
+    }
+    if (op.coords) {
+      for (let c = 0; c < N; c++) s += `<text x="${X(c) + 50}" y="${MT - 17}" text-anchor="middle" font-family="Alegreya SC, Alegreya, Georgia, serif" font-weight="700" font-size="24" fill="${tinta}" opacity=".75">${COLS[c]}</text>`;
+      for (let f = 0; f < N; f++) s += `<text x="${ML - 21}" y="${Y(f) + 58}" text-anchor="middle" font-family="Alegreya SC, Alegreya, Georgia, serif" font-weight="700" font-size="24" fill="${tinta}" opacity=".75">${f + 1}</text>`;
+    }
+    return { svg: s, W, H, X, Y, ML, MT };
+  }
+  raiz.ESCENA_CR = escena;
+  raiz.ROTULOS_AUTO = rotulosAuto;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>window.COLECCION = {"titulo":"Crímenes de época: Gran Maestro"}; window.CASOS = [{"id":"roma","titulo":"Los idus de marzo","entradilla":"La víspera de los idus, en casa del senador, se conspiraba en voz baja. Antes del amanecer, alguien se había callado para siempre.","mundo":"Roma","lugar":"En casa del senador","nivel":"Gran Maestro","clases":{"P":"Patricio","E":"Esclavo","C":"Conjurado"},"robusto":false,"N":10,"zonas":["DDVVVVVVKK","DDDAAAAKKK","DDDAAAAKKK","LLAAAAAATT","LLAAAAAATT","LLLBBBBTTT","LLPPBBPPTT","LPPPPPPPTT","LPPPPPPPPT","PPPPPPPPPP"],"zonasInfo":{"V":{"nombre":"Vestíbulo","art":"el","tex":"vestibulo"},"A":{"nombre":"Atrio","art":"el","tex":"atrio"},"D":{"nombre":"Cubículo","art":"el","tex":"cubiculo"},"K":{"nombre":"Cocina","art":"la","tex":"cocinaRomana"},"L":{"nombre":"Termas","art":"las","tex":"termas"},"B":{"nombre":"Tablino","art":"el","tex":"tablino"},"T":{"nombre":"Triclinio","art":"el","tex":"triclinio"},"P":{"nombre":"Peristilo","art":"el","tex":"peristilo"}},"objetos":["k.g......h","...t....n.",".x....em.n","....ii...n","p.........",".qbrs..lyl","..c....cl.","....a....n",".....f.b..","c..a.....c"],"objetosInfo":{"k":{"nombre":"cama","art":"una","dib":"camaRomana","ocupable":true,"sobre":["tumbado en la cama","tumbada en la cama"]},"g":{"nombre":"perro","art":"un","dib":"perro"},"h":{"nombre":"horno","art":"un","dib":"horno"},"t":{"nombre":"larario","art":"un","dib":"larario"},"n":{"nombre":"ánfora","art":"un","dib":"anfora"},"x":{"nombre":"arcón","art":"un","dib":"arcon"},"e":{"nombre":"estatua","art":"una","dib":"estatuaRomana"},"m":{"nombre":"mesa","art":"una","dib":"mesaCocina"},"i":{"nombre":"impluvio","art":"un","dib":"impluvio","ancho":2},"p":{"nombre":"piscina","art":"una","dib":"piscina","ocupable":true,"sobre":["metido en la piscina","metida en la piscina"]},"q":{"nombre":"brasero","art":"un","dib":"brasero"},"b":{"nombre":"banco","art":"un","dib":"bancoRomano","ocupable":true,"sobre":["sentado en un banco","sentada en un banco"]},"r":{"nombre":"armario de rollos","art":"un","dib":"rollos"},"s":{"nombre":"silla curul","art":"una","dib":"sillaCurul","ocupable":true,"sobre":["sentado en la silla curul","sentada en la silla curul"]},"l":{"nombre":"lecho","art":"un","dib":"lecho","ocupable":true,"sobre":["recostado en un lecho","recostada en un lecho"]},"y":{"nombre":"mesita","art":"una","dib":"mesitaRomana"},"c":{"nombre":"pilar","art":"un","dib":"columna"},"a":{"nombre":"laurel","art":"un","dib":"laurel"},"f":{"nombre":"fuente","art":"una","dib":"fuenteRomana"}},"sombra":["ss.ss.....","..........","....ss....","ss.s..s...","ss..ss..s.","....ss.sss","....ss..s.","..........","..........",".........."],"especial":{"tipo":"sombra","debe":["P"],"noPuede":["E"],"distintaZona":["C"]},"sinVacias":true,"textoCelda":["Estaba <b>sobre un mosaico</b>.","<b>No</b> estaba sobre un mosaico."],"personajes":[{"id":"aurelia","nombre":"Aurelia","clase":"P","f":true,"victima":true,"regla":{},"pista":"<b>La víctima.</b> Estaba <b>a solas</b> con su asesino."},{"id":"baucis","nombre":"Baucis","clase":"E","f":true,"victima":false,"regla":{"colCon":"f"},"pista":"La <b>fuente</b> estaba en su <b>columna</b>."},{"id":"cornelia","nombre":"Cornelia","clase":"C","f":true,"victima":false,"regla":{"colCon":"g"},"pista":"El <b>perro</b> estaba en su <b>columna</b>."},{"id":"decimo","nombre":"Décimo","clase":"C","victima":false,"regla":{"zonas":"PK"},"pista":"Estaba en el <b>Peristilo</b> o en la <b>Cocina</b>."},{"id":"eros","nombre":"Eros","clase":"E","victima":false,"regla":{"junto":"ct"},"pista":"Estaba <b>al lado</b> de un <b>pilar</b> o del <b>larario</b>."},{"id":"flavio","nombre":"Flavio","clase":"P","victima":false,"regla":{"junto":"s"},"pista":"Estaba <b>al lado</b> de la <b>silla curul</b>."},{"id":"glauco","nombre":"Glauco","clase":"E","victima":false,"regla":{"col":0},"pista":"Estaba en la <b>columna de la izquierda</b>."},{"id":"hortensia","nombre":"Hortensia","clase":"P","f":true,"victima":false,"regla":{"junto":"q"},"pista":"Estaba <b>al lado</b> del <b>brasero</b>."},{"id":"icilio","nombre":"Icilio","clase":"C","victima":false,"regla":{"noZonas":"V"},"pista":"<b>No</b> estaba en el <b>Vestíbulo</b>."},{"id":"jacinto","nombre":"Jacinto","clase":"E","victima":false,"regla":{"junto":"nb"},"pista":"Estaba <b>al lado</b> de un <b>ánfora</b> o de un <b>banco</b>."}],"rotulos":[{"z":"V","x":6,"y":0.76},{"z":"D","x":1.5,"y":1.76},{"z":"K","x":8.5,"y":1.82,"fs":0.9},{"z":"A","x":5.5,"y":1.76},{"z":"T","x":8.55,"y":3.8,"fs":0.75},{"z":"B","x":6.5,"y":5.78,"fs":0.75},{"z":"L","x":1,"y":6.76},{"z":"P","x":5,"y":9.76}]}]; window.__SECRETOS = ["GEMQCh5LW3ZHUk1ZT1BRSUtfTRVLSVdYT1ZTSUZYTR5BSVNUPk1BBAEMEkQcCkNWQQQRCgFLTQ8CDBIYAhJBXykSQ1wHDAQCQVs4RxoGE1kXCxIFAkM+SVAMDF0HDw4CQVtBNxcZAF4TRQ0NQxEKFgYIQUkXRV0OXSkMFwYMD14bBF1DAV9DHFIFAF5SFwQLDwAQX1Kr3k4HpsACFwAQRREIEkQeCQAfQw0GRQMcBEkTC15OT0MXAAodDg9IRyIDDUEQEFIZCF4GBEEVQw0CFlIbBEoeBBJAQwBDWRBXKUIAEQQCEAgCWV0LXw0BCg0DQw0GRQMcBEkTRRQCAkEABAEADUETS0FQAV8rCgAdBEMBDABQTANdRRcaFe7TRQQCQ10BWzBcXQIQW09OT0MRAAEIDVkTF0NWODweSQlLEFgbAA9OWTpBAx4IF0QdRzxAQQQOFQcDDkNQX0M8CgQNFhNJBENSCQBMEwgQERNJEFgXRRQCBkECRU4LX24dFw8JDwgCWV0LXw0LRV0OXSWgzBEADEJOSgNSTUNPRwYMGVkdR1tOIA4OClJVAxMxChMCBg0KBE5GAxNSHEFQAV8nptsKCEAdWU4OXUEQChxJAkIcDxQeAgUMFlIQQUMdRREZBgUGC1IMElkTF0EJDUEPBFIECF4fBEEWDA8CSVJVAxM2psgPCgwMWV0LXw0cCkEcFgQHAFIAEw0XC0EvW01DJktJGA0xVFFCQyIMCB1JXU9MJg4eDQQPDBNVTk9MRRhMXwNdLBEADUQdWU4OXUEQChxJAkIcDxQeAgUMFlIQQUMdRREZBgUGC1IMElkTF0EJDUEPBFIECF4fBEEWDA8CSVJVAxM7BggACg5fShBXQUMdRREZBgUGRRsbQUgcRVZMAAAQDB4FAF5cRSBMXwNdJxMcAkQBWU4OXUEQCh4GQUEXRRAZBgUCC1IvUAFSI1NAQydbRQtJJxxCSUEYDAUCFlIMDw0eBEEPDA0WCBwIQWtIRQ8NBwgGRR+qwF5SFRQJBwRDDABJBENSABINQwIMCQcED0xcRV0OXSIMFxwMDUQTWU4OXUEXDBcHBA0DEARMBhIXBABJBENSCQBMAA4PEB8HAA0xSUENEKLORQMcBA0cBAUFBkEOptMaQV0HAAUJQwgRRRcHQUgeCQBCQ10BWzUFAFgRCl1DAV9DERsMD0hSFBQJQwQQERMbQUgcRQ0NQwIMCQcED0xSJE1MAhKgyFIYFEhSCwAICgRDCLHIEg0CEAQIBkEKF1IMDw0XCQ0NTUEzCgBJFUwcEQ5AQ10BWzQFAFsbCl1DAV9DAAEdooxSAA9MXwNdIEVVTk9MS0NAQRMGFhMFFUwAR1s3PhxPHlAYFEQXC0NWOEMBBAcKCF5QOE1OBgwTEBgGDw9IRzEeFgQBBFIIQV0dCwQeQwBDWRBXIFgAAA0FAl1MB0xJBENSIVBWQ6PcFAeqyA0CBBINEaLOBE1LTQ8GABkYDENZRyEAQREQWyAZEQQPDBNVTk9MRQQfFxQVDBcbAA0XC0EoUk1DCx1JEUIWF6LBAkEGFgYIEw0TRRIDDwAQRREGDw0cBAUFBk1DHFIME0xSCQBMFaLOBgYADExcRSAfoMxDFAcMQUMdRQQfF6LCRRcHQWlDS0EpD0FfB0w/BF4GpswOFg0MWV0LXw0cCkEcFgQHAFIYFEgWBBNMFQAApt8GQVRSFg4ADEFfB0wrAFgRDBJQTANdRQIcBEkXRQQfFwARRRMBooBcRTEDEUEXBBwdDgFSWQNSIQAWBhsaXQIQW0EJEBWgxFIMDw1OB18qUl1MB0xHQwFQFwQfAg0XBABLW3ZQIVBOPhxPHlAYFEQXC0NWODxPRxcEEVgYCg9OWUMzFwcMA0xSBEEcDA8GF1IIQREQWyWvygIKCB1VTk9MRQQCQylbX1Kr3lwHpshMEwAQBACqzExNR01OFwQbER1LWw8hDEFQAV8nptsKCEAdWU4OXUEGFgYcF0QXFwBMBg9DLUpFQUMTAQgJQxEMAQCqzExSDBNMBg9DCRNJB0QeBEFaTUEiFrHEQVwHAEFQAV8nptsKCEAdWU4OXUENClIMElmxxEEJDUErXVxJMkRSWQNSJ6LKBhsEDhFdB19MBhIXEAQABF8TRQQCQyVaSVJVAxM7BggACg5fShBXQV4XRRAZBgUCF7HEAA0BDA9MEAgXDB1HQWwBpsxMEhQGRU4LX2mxzAIFDg5fShBXQUMdRQQfF6LCRRcHQWlLS0E/CkFfB0wtooQRDAwDX04BW1IMElkHEwgJEQBDABxJKRReRQQAQ10BWyYbCE4eDA8FDF1MB0xJEkhSFBQJBwARpt8IQVsTBqLBDE9DJAGqzA0DEARMXwNdIbHAAkQfCl1DAV9DCx1JBF4GpsBMBg9DLUtHQX4bRV0OXSWgzBEADEJOSgNSQwQQEQcfCEgABEEJDUEqXF5JXU9MLAIFDwgMWV0LXw0BAEEdFgQHBACqzExSFggCQxIKERsGTw0zFqLBQxAWAFJVAxM2psgPCgwMWV0LXw0cCkEJEBWgxFIMDw07XE9MMAhDWRBXKE4bCQgDX04BW1IMElkHEwgJEQBDABxJKRleRQ0NQ10BWzEGAkQcBF1DAV9DFhdJEFgXAQAeoMwCRQQIAu7fBE9MIhKgyFIYFEhSWQNSKgIKCRsGXQIQW0ECDEEGFgaqwA0XC0EkV09DWRtXNUIWBBevzgBDCx1JEFgXAQBMDQAHDBdJAkIeCgINBw5PRQIME0JSHABMCwAaRREIEkQeCQAfQwUGFhEIE1kTAQAfWUEQDBUcBA0RCg9MDwBDFRsaFUxSFggLFggGCwYMTxFdDF9OT0MRAAEIDVkTF0NWOEMrXVA0HAEJRxAZCgQNR0gyPAFQAAwcFgsMC1BTQ30AEAQOAkECRQIGD0gARQBMXwNdLBEADUQdWU4OXUEGC1IuVxdSp94dFqLKRQIIEkwApswNXENPRwYMGVkdR1tOMAhDWRBXKE4bCQgDX04BW1IMElkHEwgJEQBDABxJJhteRQ8DQwkCBwCqzExSAgQCFwRDFRMbAA0GCgUNEEEPBAFJG0IcBBJMSwICARNJG0IcBEECBgIGFhsdAA0TRQAABBQKABxJGA0eBEEIBkEPBFIfooAREQgBAk1DAR0aSANSJBKvzkESEBdJXU9MLAIFDwgMWV0LXw0cCkEJEBWgxFIMDw01U09MMAhDWRBXKE4bCQgDX04BW1IMElkHEwgJEQBDABxJKRVeRQQAQ10BWyYbCE4eDA8FDF1MB0xJEkhSFBQJBwARpt8IQVsTBqLBDE9DJAGqzA0DEARMXwNdLBEADUQdWU4OXUENClIMElmxxEEJDUErXVxJMkRSWQNSKgIKCRsGXQIQW0EJEBUWExsME0xSAA9MJ1hPRU4LX2gAChJQTANdRQEMQVwHAAUNEaLOBFIaCENSFggYCg5NRTMaooBSFBQJQ10BWzsKCEEbCl1DAV9DCx1JBF4GpsBMBg9DIUtHQX4bRV0OXSgADB4ADhFdB19MBhIXEAQABF8TRQQCQylaSVIHAEkbAEEcDAURpt8IQUQARQQCQw0CRREGDVgfCwBMJE9DJAGqzA0DEARMXwNdLBEADUQdWU4OXUENClIMElmxxEEJDUErXFxJMkRSWQNSKgIKCRsGXQIQW0EJEBUWExsME0xSAA9MKlhPRRcFQREQWyIZAaLOBgcFDhFdB19MEARDFAcMBUwApswNQxcCBrHEDgNSJBKvzkESEBdJXU9MLAIFDwgMWV0LXw0cCkEJEBWgxFIMDw07XE9MXwhdMR0NAFuxyABMDQ5DFAcMBUxSCwAICgRDBh0FDk4TAQ5AQxEGFx1JGExSDQAVQwICFhsFDUwBRQUJEAICFwYIBUwBX0EfCgYWAFIKDkNSCQBMEwgQERNJEkQVEAgJDRUGS05GCBNQSUMeBhICCQYIEw9IPkMrVUM+GF4SQ1wHDAQCQVs4OF5LBEACEAsDDUNZRzMYFO7fRRUDAABDEBwIQV4HFQ4fCgIKpsEHQUkXCxUeDEEHAFIGFV8TX0EfFhGg1hxJEFgXRV0OXSAWFxcFCExOSgNSQwQQEbHIQUgcRSVYQxhPRU4LX14bC0EIBhILBBEMEw0XFgBMEBQTCgEAAkSx1g9QTANdSVIZE1gXBwBMAkETChwMEw0TRV0OXSWgzBEADEJOSgNSQwQNRTtaTw2w2jAZoMhDFRMaAF+xyABTQU1BERcRFUJQX0NQAV8zBAEGQUkXRSYeAg9DKBMMElkACl1DAV9DTQcHAA0BEBEDEAgADLHaDw0WAA8YEQ5DARdJDlkABEhCXwMRWyEcEUIcAgABDBJDFAcMQREQWyAZEQQPDBNVTk9MRQQfFxQVDBcbAA0XC0EoV09fBwBXg63mRSIDDUFfB0woFF8XCQgNX04BW1IMDw02UU1MXwNdIbHAAkQfCl1DAV9DCx1JEUIWF6LBAkEGFgYIEw0XC0ElUFtDFhtJBF4GEBcFBhMCSVIMDQ1OB18vFgOgyBEcDUJOSgNSQxIGRQMcBEkTF6LBAkEVBBGqzEJcWQMeXYPj8VIoEu7fRRAZBk1DBh0HQREQWyAZEQQPDBNVTk9MRQQCQyVXSVJVAxM2psgPCgwMWV0LXw0GAA8IEaLOBFIYFEhSABIYAhNDABxJDUxSAwgAAkFSVVxVA19Mh+H4QzhDABwdDkMRABJMBg1DWRBXIlgQpswPFg0MWV0LXw0BAEEdFgQHBACqzExSEwAPoMwMS04LExMxCgwDQwQQClIMEg0bCBEDEAgBCRdFQUETRRIZEw4QDBEAop4cRQUJQxECFwYABUxSABMNQwcCCQEIWw1OB18tFhMGCRsIQUMdRQQfF6LCRRcHQWlGWU4OXU9DWRtXNUIWBBevzgBDCx1JEFgXAQBMDQAHDBdJAkIeCgINBw5PRQIME0JSHABMCwAaRREIEkQeCQAfQwUGFhEIE1kTAQAfWUEQDBUcBA0RCg9MDwBDFRsaFUxSFggLFggGCwYMTxFdDF9OT0MRAAEIDVkTF0NWOEMnUVBFQ2RBRzwRTxpBFAcABENQXzoxT0MGCAIcC0IcR1tOMxMWABAIQUxSFQ4CBhNDBFJVAxM4BAIFDRUMWV0LXw0XC0ErWltDp80YFO7bRRENEAARpt8IXg9eRxUJGxUMR0hLMkRSWQNSKQAADBwdDhFdB19MBhIXEAQABF8TRQQCQyZaSVIMDQ1OB18vFgOgyBEcDUJOSgNSQxIGRQMcBEkTF6LBAkEVBBGqzEJcRSAfoMxDFAcMQREQWysNAAgNER1VTk9MRQ8DQwQQEbHIQUgcRSZVTUEwDFJVAxM2psgPCgwMWV0LXw0XFhUZFQgGFxNJBENSLFJAQ10BWzUFAFgRCl1DAV9DFhdJEFgXAQAeoMwCRQEADw0BDBUFDE9DJAGqzA0DEARMXwNdIbHAAkQfCl1DAV9DCx1JBF4GpsBMBg9DLEFHQX4bRV0OXSIMFxwMDUQTWU4OXUEGFgYcF0QXFwBMBg9DJkpFQREQWygPCg0KCk5GAxNSFgRMEhQGARMbooATRRIFDUEQDAYADgNSJBKvzkESEBdJXU9MJg4eDQQPDBNVTk9MRQ8DQwQQEbHIQUgcRSJUTUEwDFJVAxMxChMCBg0KBE5GAxNSABIYFhcKAAAIQUgcRSJVT0FfB0wgAkQeDA5QTANdRQEMQVwHAAUNEaLOBFIaCENSFggYCg5NRTMaooBSFBQJQ10BWzEGE0MXCQgNX04BW1IHDg0XFhWvwkEGC1IqWANSNghMXwNdJh0bD0geDABQTANdRRcaFVgEDAQeAkEGC1IqUB1eRV0OXSgADB4ADhFdB19MEARDFAcMBUwApswNQxIKC1IaCFkbCk9MIhKgyFIYFEhSWQNSIA4RCxcFCExOSgNSQw8MRRcaFe7TRQQCQyJSVVxJXURMMQ4IAhegyBNJD0JSFBQJBwBDCxMNCEhSBg4ADAICAR1FQV0XFw5MGgBDDRMQQU4TFggADwAQRRYMEk4TFxUNBwAQX1IaCEoHAEEPDA9DCRNJEUQBEQBMEAgEEBsMD1kXS11DCl9BSVAbBF4TCRUNEUNZPlAuWA8vGE0XQRAWDBcHQxcpOE1OBgwTEBgGDw9IRzEeFgQBBFIIQV0dCwQeQwBDWRBXJF8dFl1DAV9DABxJKRVIRaPTEhSgzFIZAF4TF6LBAl5BSVAdBFUGCkNWQTIKRU4LX2gAChJQTANdRRcaFVgEDAQeAkEGC1IhWQFSCw5MCwABF7HEAA0VAA8YBkETBAAIQVkdAQAfQw0CFlITDkMTFkFEAAAHBFITDkMTRQ8JAAQQDAYIQUxSBA0LFggGC1IQQUETRQUJQw0CRQSqzE4GDAwNT0EHCgFATw0zFqLBQxAWAFJVAxM3Fw4fX04BW1IHDg0XFhWvwkEGC1IhWQNSNghMXwNdLxMKCEMGCl1DAV9DAAEdFFsbABMNQwQNRTtdTQ1OB18ooMgADB8GXQIQW0EVQ10BWzsKCEEbCl1DAV9DBBEIA0wApswNDUEGC1IFAA0fDBIBAkEZChwITQ0LRRIDDUEAChwDFF8TAQ4fTUEiFrHEQVwHAEFQAV8pBBEAD1kdWU4OXUENClIMElmxxEEJDUEqUVxJMkRSWQNSKgIKCRsGXQIQW0EJEBUWExsME0xSAA9MJFNPRRwIBUQXRREDBxOgyBNJCF9SAA9MDwBDAxsFAA1GS0EtEKLORQMcBA1OB18lAAgPDB1VTk9MRQ8DQwQQEbHIQUgcRSZeTUEwDFJVAxM7BggACg5fShBXQUgBERQaCgQRBFIMDw07Vk1MXwNdIh4IFE4dWU4OXUEQAFIYFEgWBBOvzgBDFhsHQV4bEQgDTUEiFrHEQVwHAEFQAV8qBhsFCEJOSgNSQw8MRRcaFe7TRQQCQyhQS1I6CA1OB18rDwAWBh1VTk9MRQQfFxQVDBcbAA0XC0EtUU1DCxMNCEhSFQ4IEaLOBFIAEw0XC0EAAkEFDB4IQRxCS0EtEKLORQMcBA1OB18rDwAWBh1VTk9MRQ8DQwQQEbHIQUgcRSBeTUFfDEw9DkkTE6LBAkENClIYFEgWBEECAgUKAFIKDkEdBgAIDE1DFRcbDg0LBEEEAhhDBhMaCEEeBBJMBwQQBhMbFUwWBBJWQxIKAgcMQU4dC0EAAkETDAEdAA0BDAYZCgQNERdHXQIbW0NAQRMGFhMFFUwAR1s3QSlbRy8UTVZQFBQFBg9BXyk0TQ8XCBEZCQ4NR0hLMV8HAAMNQwBDFR0HBF9SBEFQAV8mFx0aXQIQW0EJDUEnVkhJo5IDEKLFQxECFhMbooATWkNAQRUGHQYGQxdQNghMXwNdIAAGEhFdB19MBhIXEAQABF8TRQQCQyVQSVIFAA1OB18vDAIKCxNVTk9MRRIJQxAWABYIE+7fBEEaAgKgyBNHQWwBpsxMEhQGRU4LX2gAChJQTANdRRwGQUgBEaLNQwQNRTZaTw0hDEFQAV8iEAAMDUQTWU4OXUEGFgYcF0QXFwBMBg9DIkZFQUETRV0OXSIMBhsHABFdB19MEARDFAcMBUwApswNQxcCBrHEAANSJBKvzkESEBdJXU9MJBQeBg0KBE5GAxNSCw5MBhIXptNJBENSIlVCQyBDWRBXIFgAAA0FAl1MB0xJEkIeCkEABkESEBcNAENSLVdMGkEpU15JDUwBRQUDEEEGC1IFAA0UDA0NQ1dZRRwIBUQXRQyvwhJDFQcMBUhSDBNMBg9DAAEIQUsbCQBCQ10BWzMcE0geDABQTANdSVJVAxM3Fw4fX04BW1IQQREQWysNAAgNER1VTk9MRRIDDw5DBhMLBENSAA9MDwAQRREGDVgfCwAfQylPRTtJGA04X0EJEAAQRREGDVgfCwAfQxIMC1IaFFQTFkEVQw8CARsMQUCxxBJMExQGARdJCF9SAA9MBg0PBAFHQW4dCA5MXwNdIbHAAkQfCl1DAV9DHFJVAxM7BggACg5fShBXQV4dC0EPDA8JEAAIBUIBRRhMDQ5DFQcMBUgcRQQfFwARRRcHQUETRQwFEAwCRQgGD0xeRV0OXSgADB4ADhFdB19MDQ5DFQcMBUhSDBNMBg9DIUpFQWpKSUErWkEaRTVYUQNSWQhSNw4HBASqzExSCw5MEhQGARNJD0wWDARMAA4PChEIBUJeRREJEQ5DHBNJCUwLRQINEAgPCRMaQUkXFgINERUCARMaWw0BDAYZBkEAChxJDUxSFQgfFwBDFhsOFEQXCxUJTV1MDExLTQ8AABINDxUCF1BTOg82VkMxHk0YRwMcCEgcR1s3QQQRCgFLPAFQAAwcFgsMC1BTQ30bAA8fAkEGC1IFAA0CDBIYAkESEBdJFEMXRQBMXwNdJh0bD0geDABQTANdRQtJXU9MLAIFDwgMWV0LXwNQSUMYBhkXClBTQ24dCA5MXwNdJh0bD0geDABQTANdRQtJXU9MLAIFDwgMWV0LXw0BCg9MAA4NDwcbAEkdFkEVQw8MRQIcBEkXC0EJEBUCF1IMDw0eBEEBChIOBFITDkMTSUFQAV8gCgAHBEEbBF1DAV9DCx1JEVgXAQRMChNDABxJIhlcRSQCQw0CRRQADUxSUUEfDA0MRQIcBEkXRQgeQ10BWzsKCEEbCl1DAV9ZRRcaFe7TRQQCQwQQBFIPCEETS0EgAkFfB0wqDk4bCwBQTANdRRwGQV0HAAUJQxAWABYIEw0EBAKvzgBDHFIaDkEdRV0OXSsCBhsHFUJOSgNSQxEWABYMQUgBEQAeQwALpt9HQREQWyIDEQ8GCRsIXQIQW0EVQ10BWzgIAkQcEQ5QTANdRQEGDUJSBgAOBg9DABxJDUwBRQcFDwAQRUBJGA1BX0EJEAAQRRQADUwBRRIDDUEQEAsIEg0LRQ8NBwgGRR+qwF5SFRQJBwRDDABJBENSAA0AAhJNRTEcBEMGBEEcBhMQChwIEg0LRRsDDQAQX1IKAEkTRRsDDQBDCxcKBF4bEQBMAkECCRUcCEgcRRhMDwBDARdJDUxSE6LBABUKCBNFQUkdFkEcBhMQChwIEgNSJg4CQw0MRQMcBA0LBEEJEEEQABUcE0JSCw5MEA4BFxNJD0wWDARAQwAQpt9JEFgXRQQCQwQPRU4LX30XFwgfFwgPCk5GAxNSCw5MAAABAFIHAEkbAEEBoMAQS1I5Dl9SEQACFw5PRU4LX2gAChJQTANdRRcaFe7TRQQCQ10BWzhQXQIQW09OT0MRAAEIDVkTF0NWODweSQlLEFgbAA9OWTpBBAcbBEEbBEMxT0MGCAIcC0IcR1tOIA4NRR4GQVwHAEEVAkEQBBAMEgFSp94dFqLKRREIEkQeCQAfQw0GRQMcBEkTC0ENQ10BWzMcE0geDABQTANdWlBFQ1kXHRUDQVtBJh0HQUEdRQACFwQRDB0bTQ0TRV0OXSAWFxcFCExOSgNSQxIMCR1JDUhSFBQJBwBDEBwIQU4TFggADwBDFR0aCE8eAFtMXwNdJAcbBEEbBEEJEBWgxFIMDw06U11DAV9NR15LE0gBBA0YAhNBXyk0HAEJRxAZCgQNR0gyQ0kXBggBDEM+SVAMDF0HDw4CQVtBJh0HQUEdRRAZBkEaBFIaAE8XFk1Mod4SELHAQU4TFggADwAQRR4MQVwHAAUNDUECRU4LX2mxzAIFDg5fShBXXg9eRxUJGxUMR0hLIkIcRQ0DQwANERcbCEIASUENQ10BWzaqyE4bCA5QTANdRQEGDUJSCQRMEhQGARNJFEMTRQINEAgPCRNJEUIBDAMABltDWRBXJe7bBggBDEEGFgaqwA0XC0ErUlFfShBXTw9eRxMJEAAPERMbQxcpOBxAGEMSEBsMDw9IPkMLDwAWBh1LPAFQAAwcFgsMC1BTQ24dC0EADEESEBdJGExSFgAOBhJPRbDWEFixzEEPAhIKCR4IEg0eAEEdFgQHBBxJAA1OB18rDwAWBh1VTk9MWkNAQRUGHQYGQxdQJg4CQw0MRRMHFUgADA4eT0ECRU4LX2oeBBQPDF1MB0xJEkIeCkEABkESEBcNAA0HCwBMAAAQDB4FAA0CChIFAQ0GX1JVAxM1CQAZAA5DAAEdooxSAA9MIllfShBXTw9eRxMJEAAPERMbQxcpOBxAGEMSEBsMDw9IPkMPDBMNAB4AAA8vSUMJDhEWDx0HQxdQJg4CQw0MRQMcBA0LBEEfAgMGFl5Jo5IDEKLFQwICFhsFDUwBRQ0JQxAWABYIDw0TRV0OXSIMFxwMDUQTWU4OXV5BSVAdBFUGCkNWQSIMC1IFDg0TCxUJEQgMF15JAA1OB18vDBMNAB4AABFdB19MEA4PClIFBA0DEAQIAkEWCxNJAkwBDA0AAkETCgEAA0EXX0FQAV8gCgAHBEEbBEEJEBWgxFIMDw0xV11DAV9NR15LE0gBBA0YAhNBXyk0HAEJRxAZCgQNR0gyQ0QRDA0FDEM+SVAMDF0HDw4CQVtBJh0HQUEdRRAZBkEaBFIaAE8XFk1Mod4SELHAQU4TFggADwAQRR4MQVwHAAUNDUECRU4LX2QRDA0FDF1MB0xWQwFQEQQUFw5BX1AqDkNSCQ5MAg8XAAAADl9eRQBMXwNdLBEADUQdWU4OXUEQCh4GQUEXRRAZBgUCRQcHAA0RBBIFDw0CRQIGEkQQCQRWQ10BWzsKCEEbCkEJEBWgxFIMDw02UV1DAV9NR15LE0gBBA0YAhNBXyk0HAEJRxAZCgQNR0gyQ0cTBggCFw5BOF5LBEACEAsDDUNZRzEGDw0eCkEdFgRDHBNJEkwQABJAQ6PcFAeqyA0RBBIFDw0CFlIFBA0DEAQIAg9DBFJVAxM4BAIFDRUMWV0LXxJQSUMYBhkXClBTQ24dC0EADEECCwYME0QdF01MAkFfB0wjAE4bCxUDX04BW1IaDkEdRQ0JQxAWABYIQVgcBEEPAhIKCR4IQV0dFggODwRZRU4LX2cTBggCFw5DAAEdooxSAA9MKlJfShBXTw9eRxMJEAAPERMbQxcpOBwxHg=="];</script>
+<script>
+// Crímenes de época — colección de cinco casos en cinco mundos. Usa ARTE_MUNDOS (arte/*.js), ESCENA_CR (tablero.js), CASOS
+// (datos de cada caso, sin solución) y __SECRETOS (solución, asesino y pistas de cada caso, codificados).
+(function () {
+  'use strict';
+  const CASOS = window.CASOS, MUNDOS = window.ARTE_MUNDOS;
+  const COLS = 'ABCDEFGHIJKL';
+  // ---------- lo propio de cada mundo en la interfaz ----------
+  const UI = {
+    egipto: {
+      fuente: "'Cinzel Decorative','Cinzel',Georgia,serif", nombre: "'Cinzel',Georgia,serif", aros: { '-': '#c9a227' }, fondoFicha: { '-': '#f6ead0' },
+      regla: 'Los gatos sagrados', textoRegla: 'En Egipto los gatos son sagrados: <b>nadie</b> puede estar en una casilla <b>al lado de un gato</b> (arriba, abajo, a la izquierda o a la derecha).',
+    },
+    pirata: {
+      fuente: "'Pirata One',Georgia,serif", nombre: "'Pirata One',Georgia,serif", aros: { O: '#c8473f', M: '#8b6a52', G: '#4f8fc0' }, fondoFicha: { O: '#f7dcd8', M: '#efe2d2', G: '#dbe8f4' },
+      regla: 'Rangos a bordo', textoRegla: 'Las <b>zonas de oficiales</b> tienen el borde <b>rojo</b> y un <b>ancla</b>. Los <b>oficiales</b> tienen que estar en una zona de oficiales; los <b>marineros</b> no pueden pisarlas; los <b>grumetes</b>, donde quieran.',
+      clases: { O: 'Tiene que estar en una zona de oficiales.', M: 'No puede estar en una zona de oficiales.', G: 'Puede estar en cualquier zona.' },
+    },
+    torneo: {
+      fuente: "UnifrakturMaguntia,'Grenze Gotisch',serif", nombre: "'Grenze Gotisch',Georgia,serif", aros: { N: '#7a54a8', P: '#a5835a', C: '#8d9096' }, fondoFicha: { N: '#e3d6f0', P: '#f1e5cd', C: '#eceef0' },
+      regla: 'Caballeros y nobles', textoRegla: 'Las <b>zonas nobles</b> tienen el borde <b>morado</b> y una <b>corona</b>. Un <b>noble</b> tiene que estar en una zona noble; un <b>plebeyo</b> no puede estar en ellas; un <b>caballero</b>, donde quiera.',
+      clases: { N: 'Tiene que estar en una zona noble.', P: 'No puede estar en una zona noble.', C: 'Puede estar en cualquier zona.' },
+    },
+    oeste: {
+      fuente: "Rye,Georgia,serif", nombre: "Rye,Georgia,serif", aros: { F: '#8e6bb8', V: '#b5733a', L: '#8d9096' }, fondoFicha: { F: '#ece2f4', V: '#f3e1cf', L: '#eceef0' },
+      regla: 'Sol y sombra', textoRegla: 'Las casillas <b>rayadas</b> están <b>a la sombra</b>. Los <b>forasteros</b> siempre están a la sombra; los <b>vaqueros</b>, siempre al sol; la <b>ley</b> (el sheriff y su ayudante), donde quiera.',
+      clases: { F: 'Siempre a la sombra.', V: 'Siempre al sol.', L: 'Al sol o a la sombra.' },
+    },
+    espacio: {
+      fuente: "Orbitron,'Segoe UI',sans-serif", nombre: "Orbitron,'Segoe UI',sans-serif", aros: { H: '#4f8fc0', A: '#8d9096', X: '#4caf7d' }, fondoFicha: { H: '#dbe8f4', A: '#eceef0', X: '#d9f0e2' },
+      regla: 'Oxígeno y androides', textoRegla: 'Las <b>zonas sin aire</b> tienen el borde a <b>rayas amarillas y negras</b>. Los <b>humanos</b> no pueden estar en ellas; los <b>alienígenas</b> solo pueden estar en ellas; los <b>androides</b>, donde quieran, pero <b>dos androides nunca se tocan</b>, ni siquiera en diagonal.',
+      clases: { H: 'No puede estar en una zona sin aire.', A: 'En cualquier zona, sin tocar a otro androide.', X: 'Solo puede estar en una zona sin aire.' },
+    },
+    roma: {
+      fuente: "'Marcellus SC','Cinzel',Georgia,serif", nombre: "'Marcellus',Georgia,serif", aros: { P: '#7a54a8', E: '#a5835a', C: '#b8323a' }, fondoFicha: { P: '#e9def4', E: '#f1e5cd', C: '#f6dcd8' },
+      regla: 'La conjura', textoRegla: 'Los suelos de <b>mosaico</b> (las casillas marcadas) son cosa de señores: un <b>patricio</b> está siempre sobre mosaico y un <b>esclavo</b>, nunca, aunque en la casilla haya un mueble que se ocupa, como un lecho. Los <b>conjurados</b> pueden estar en cualquier casilla, con mosaico o sin él, pero <b>nunca hay dos conjurados en la misma zona</b>: no quieren que los vean juntos.',
+      clases: { P: 'Siempre sobre mosaico.', E: 'Nunca sobre mosaico.', C: 'Donde quiera, pero nunca en la zona de otro conjurado.' },
+      // casillas marcadas (los mosaicos): qué se le dice a quien la regla obliga a pisarlas o le prohíbe pisarlas
+      celdaSi: 'tiene que estar sobre un mosaico', celdaNo: 'no puede estar sobre un mosaico',
+    },
+  };
+  // los casos de la Edad Media sin entrada propia usan el aspecto del torneo (el del libro)
+  const uiDe = (c) => UI[c.id] || UI.torneo;
+  const COLECCION = window.COLECCION || { titulo: 'Crímenes de época' };
+  const FEMENINO = { Marinero: 'Marinera', Plebeyo: 'Plebeya', Forastero: 'Forastera', Vaquero: 'Vaquera', Humano: 'Humana', Patricio: 'Patricia', Esclavo: 'Esclava', Conjurado: 'Conjurada' };
+  const NIVEL_COLOR = { 'Fácil': '#2f7d3a', 'Medio': '#2d6fae', 'Difícil': '#c06a1a', 'Experto': '#b8323a', 'Maestro': '#6c2f9a', 'Gran Maestro': '#8a6418' };
+
+  // ---------- secretos ----------
+  function descifrar(b64) {
+    const clave = 'caceria-real', bin = atob(b64), bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i) ^ clave.charCodeAt(i % clave.length);
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+  const SECRETOS = window.__SECRETOS.map(descifrar);
+
+  // ---------- almacenamiento ----------
+  const CLAVE = 'caceria-real-v1'; // nombre antiguo de la colección: se mantiene para no perder el progreso guardado
+  const guardado = (() => { try { return JSON.parse(localStorage.getItem(CLAVE) || 'null') || {}; } catch (e) { return {}; } })();
+  guardado.opciones = Object.assign({ sombra: true, avisos: true, ojo: false, sonido: true }, guardado.opciones || {});
+  guardado.casos = guardado.casos || {};
+  guardado.vistos = guardado.vistos || {};
+  const opciones = guardado.opciones;
+  // la otra web de la colección (mismo dominio) guarda en la misma clave: se mezclan solo los casos de esta página,
+  // releyendo lo guardado, para no pisar el progreso que la otra haya guardado mientras tanto
+  function guardar() {
+    try {
+      const d = JSON.parse(localStorage.getItem(CLAVE) || 'null') || {};
+      d.opciones = guardado.opciones; d.casos = d.casos || {}; d.vistos = d.vistos || {};
+      for (const c of CASOS) {
+        if (guardado.casos[c.id]) d.casos[c.id] = guardado.casos[c.id];
+        if (guardado.vistos[c.id]) d.vistos[c.id] = true;
+      }
+      localStorage.setItem(CLAVE, JSON.stringify(d));
+    } catch (e) { /* sin almacenamiento */ }
+  }
+
+  // ---------- estado de la partida en curso ----------
+  let C = null, SEC = null, A = null, U = null, P = null, IDX = null, N = 0, NN = 0, VICTIMA = -1, ASESINO = -1, PISTAS = [], SOL = [];
+  let est = null, modo = 'colocar', sel = null, marcadosMal = new Set(), resaltes = [], historial = [];
+  let E = null;
+  const F = (k) => Math.floor(k / N), Co = (k) => k % N, nomCelda = (k) => COLS[Co(k)] + (F(k) + 1);
+  const celdaDe = (txt) => COLS.indexOf(txt[0]) + (parseInt(txt.slice(1), 10) - 1) * N;
+  const zona = (k) => C.zonas[F(k)][Co(k)], obj = (k) => C.objetos[F(k)][Co(k)];
+  const sombra = (k) => !!(C.sombra && C.sombra[F(k)][Co(k)] === 's');
+  const tipoZona = (z) => (C.zonasInfo[z] && C.zonasInfo[z].tipo) || null;
+  const ocupable = (k) => obj(k) === '.' || !!(C.objetosInfo[obj(k)] && C.objetosInfo[obj(k)].ocupable);
+  const unObj = (t) => `${C.objetosInfo[t].art} ${C.objetosInfo[t].nombre}`;
+  const enZona = (z) => { const i = C.zonasInfo[z]; return (i.art === 'el' ? 'en el ' : `en ${i.art} `) + i.nombre; };
+  const vecinos = (k) => { const v = []; if (F(k) > 0) v.push(k - N); if (F(k) < N - 1) v.push(k + N); if (Co(k) > 0) v.push(k - 1); if (Co(k) < N - 1) v.push(k + 1); return v; };
+  const diag = (a, b) => Math.abs(F(a) - F(b)) === 1 && Math.abs(Co(a) - Co(b)) === 1;
+  const o_ = (a) => (a.length < 2 ? a[0] : a.slice(0, -1).join(', ') + ' o ' + a[a.length - 1]);
+  const nombreClase = (p) => { const n = (C.clases || {})[p.clase]; return n ? (p.f && FEMENINO[n]) || n : ''; };
+  const nuevo = () => ({ pos: P.map(() => null), notas: new Array(NN).fill(0), tachas: new Array(NN).fill(false), pistasVistas: [], resuelto: false });
+
+  // ---------- reglas: por qué alguien NO puede estar en una casilla ----------
+  function motivoNo(i, k) {
+    const p = P[i], o = obj(k), r = p.regla || {}, e = C.especial || {};
+    if (!ocupable(k)) return `En ${nomCelda(k)} hay ${unObj(o)}: ahí no puede estar nadie.`;
+    if (e.tipo === 'nadieJunto' && vecinos(k).some((v) => obj(v) === e.objeto)) return `${nomCelda(k)} está al lado de ${unObj(e.objeto)}: nadie puede estar ahí.`;
+    if (e.tipo === 'zonaClase') {
+      const t = tipoZona(zona(k)), clase = nombreClase(p).toLowerCase();
+      if ((e.debe || []).includes(p.clase) && t !== e.atributo) return `${p.nombre} es ${clase}: ${U.clases[p.clase].toLowerCase()}`;
+      if ((e.noPuede || []).includes(p.clase) && t === e.atributo) return `${p.nombre} es ${clase}: ${U.clases[p.clase].toLowerCase()}`;
+    }
+    if (e.tipo === 'sombra') {
+      if ((e.debe || []).includes(p.clase) && !sombra(k)) return `${p.nombre} es ${nombreClase(p).toLowerCase()}: ${U.celdaSi || 'tiene que estar a la sombra (casillas rayadas)'}.`;
+      if ((e.noPuede || []).includes(p.clase) && sombra(k)) return `${p.nombre} es ${nombreClase(p).toLowerCase()}: ${U.celdaNo || 'tiene que estar al sol'}.`;
+    }
+    const pista = (t) => `${p.nombre}: «${t}»`;
+    const plano = (h) => h.replace(/<[^>]+>/g, '');
+    if (r.zonas && !r.zonas.includes(zona(k))) return pista(plano(p.pista));
+    if (r.noZonas && r.noZonas.includes(zona(k))) return pista(plano(p.pista));
+    if (r.sobre && !r.sobre.includes(o)) return pista(plano(p.pista));
+    if (r.junto && !vecinos(k).some((v) => r.junto.includes(obj(v)))) return pista(plano(p.pista)) + ' (al lado es arriba, abajo, a la izquierda o a la derecha).';
+    if (r.filaCon && !C.objetos[F(k)].includes(r.filaCon)) return pista(plano(p.pista));
+    if (r.colCon && !C.objetos.some((f) => f[Co(k)] === r.colCon)) return pista(plano(p.pista));
+    if (r.fila !== undefined && F(k) !== r.fila) return pista(plano(p.pista));
+    if (r.col !== undefined && Co(k) !== r.col) return pista(plano(p.pista));
+    if (r.sombra === true && !sombra(k)) return pista(plano(p.pista));
+    if (r.sombra === false && sombra(k)) return pista(plano(p.pista));
+    return null;
+  }
+  const RELACION = {
+    esteDe: [(a, b) => Co(a) > Co(b), 'al este de'], oesteDe: [(a, b) => Co(a) < Co(b), 'al oeste de'],
+    norteDe: [(a, b) => F(a) < F(b), 'al norte de'], surDe: [(a, b) => F(a) > F(b), 'al sur de'],
+    mismaZona: [(a, b) => zona(a) === zona(b), 'en la misma zona que'], distintaZona: [(a, b) => zona(a) !== zona(b), 'en otra zona que'],
+  };
+  // choques entre los que ya están puestos
+  function choques() {
+    const m = new Map();
+    const add = (i, t) => { if (!m.has(i)) m.set(i, []); if (!m.get(i).includes(t)) m.get(i).push(t); };
+    const puestos = P.map((_, i) => i).filter((i) => est.pos[i] !== null);
+    const e = C.especial || {};
+    for (const i of puestos) for (const j of puestos) {
+      if (j <= i) continue;
+      const a = est.pos[i], b = est.pos[j];
+      if (F(a) === F(b)) { add(i, `Comparte fila con ${P[j].nombre}.`); add(j, `Comparte fila con ${P[i].nombre}.`); }
+      if (Co(a) === Co(b)) { add(i, `Comparte columna con ${P[j].nombre}.`); add(j, `Comparte columna con ${P[i].nombre}.`); }
+      if (e.distintaZona && e.distintaZona.includes(P[i].clase) && e.distintaZona.includes(P[j].clase) && zona(a) === zona(b)) { add(i, `Está en la misma zona que ${P[j].nombre}, y dos conjurados nunca están juntos.`); add(j, `Está en la misma zona que ${P[i].nombre}, y dos conjurados nunca están juntos.`); }
+      if (e.noDiagonal && e.noDiagonal.includes(P[i].clase) && e.noDiagonal.includes(P[j].clase) && diag(a, b)) { add(i, `Toca en diagonal a ${P[j].nombre}, y dos androides nunca se tocan.`); add(j, `Toca en diagonal a ${P[i].nombre}, y dos androides nunca se tocan.`); }
+    }
+    for (const i of puestos) {
+      const p = P[i], r = p.regla || {}, k = est.pos[i];
+      const mo = motivoNo(i, k);
+      if (mo) add(i, mo);
+      for (const [clave, [fn, txt]] of Object.entries(RELACION)) {
+        if (!r[clave]) continue;
+        const j = IDX[r[clave]];
+        if (est.pos[j] !== null && !fn(k, est.pos[j])) { add(i, `Tiene que estar ${txt} ${P[j].nombre}.`); add(j, `${p.nombre} tiene que estar ${txt} ${P[j].f ? 'ella' : 'él'}.`); }
+      }
+      if (r.sola) for (const j of puestos) if (j !== i && zona(est.pos[j]) === zona(k)) { add(i, `Estaba ${p.f ? 'sola' : 'solo'} ${enZona(zona(k))}.`); add(j, `${p.nombre} estaba ${p.f ? 'sola' : 'solo'} ${enZona(zona(k))}.`); }
+    }
+    if (VICTIMA >= 0 && est.pos[VICTIMA] !== null) {
+      const z = zona(est.pos[VICTIMA]), otros = puestos.filter((j) => j !== VICTIMA && zona(est.pos[j]) === z);
+      if (otros.length >= 2) add(VICTIMA, `Estaba a solas con su asesino, y ${enZona(z)} ya hay ${otros.length} personas más.`);
+    }
+    return m;
+  }
+
+  // ---------- dibujo ----------
+  const svg = document.getElementById('tablero');
+  let capaViva = null;
+  const retrato = (p) => A.retratos[p.id]();
+  function fichaG(p, uid, aro) {
+    return `<defs><clipPath id="cf-${uid}"><circle cx="50" cy="50" r="44"/></clipPath></defs>` +
+      `<circle cx="50" cy="50" r="47" fill="${U.fondoFicha[p.clase] || '#f4f0e8'}" stroke="${U.aros[p.clase] || '#8d9096'}" stroke-width="6"/>` +
+      `<g clip-path="url(#cf-${uid})"><g transform="translate(-2 4) scale(1.04)">${retrato(p)}</g></g>` +
+      `<circle cx="50" cy="50" r="46" fill="none" stroke="#2c2531" stroke-width="2"/>` + (aro ? `<circle cx="50" cy="50" r="47" fill="none" stroke="${aro}" stroke-width="9"/>` : '');
+  }
+  const ficha = (p, uid, aro) => `<svg viewBox="-3 -3 106 106" aria-hidden="true">${fichaG(p, uid, aro)}</svg>`;
+  const carta = (p) => `<svg viewBox="0 0 100 100" aria-hidden="true">${(A.fondos[p.clase] || A.fondos['-'] || (() => ''))()}<g transform="translate(9 11) scale(.82)">${retrato(p)}</g></svg>`;
+  const rectK = (k, fill, op) => `<rect x="${E.X(Co(k))}" y="${E.Y(F(k))}" width="100" height="100" fill="${fill}" opacity="${op}" pointer-events="none"/>`;
+  function pintarTablero() {
+    let s = '';
+    const ocupadas = new Set(est.pos.filter((k) => k !== null));
+    if (opciones.sombra) {
+      const filas = new Set(), cols = new Set();
+      for (const k of ocupadas) { filas.add(F(k)); cols.add(Co(k)); }
+      for (let k = 0; k < NN; k++) if (!ocupadas.has(k) && (filas.has(F(k)) || cols.has(Co(k)))) s += rectK(k, '#3a2f45', 0.16);
+    }
+    if (opciones.ojo && sel !== null && modo !== 'tachar') for (let k = 0; k < NN; k++) if (!ocupadas.has(k) && ocupable(k) && motivoNo(sel, k)) s += rectK(k, '#ffffff', 0.55);
+    for (const k of resaltes) s += `<rect x="${E.X(Co(k)) + 4}" y="${E.Y(F(k)) + 4}" width="92" height="92" rx="10" fill="#ffd257" opacity=".28" stroke="#e0a82e" stroke-width="6" pointer-events="none"/>`;
+    for (let k = 0; k < NN; k++) {
+      if (ocupadas.has(k)) continue;
+      const x = E.X(Co(k)), y = E.Y(F(k));
+      if (est.tachas[k]) s += `<path d="M${x + 24} ${y + 24}L${x + 76} ${y + 76}M${x + 76} ${y + 24}L${x + 24} ${y + 76}" stroke="#a3343b" stroke-width="9" stroke-linecap="round" opacity=".85" pointer-events="none"/>`;
+      const m = est.notas[k];
+      if (m) {
+        s += `<rect x="${x + 6}" y="${y + 6}" width="88" height="88" rx="10" fill="#fbf8f2" opacity=".5" pointer-events="none"/>`;
+        const cols = Math.ceil(Math.sqrt(P.length)), paso = 84 / cols;
+        P.forEach((p, i) => {
+          if (!(m & (1 << i))) return;
+          s += `<text x="${x + 8 + paso / 2 + (i % cols) * paso}" y="${y + 8 + paso * 0.78 + Math.floor(i / cols) * paso}" text-anchor="middle" font-family="Alegreya, Georgia, serif" font-weight="700" font-size="${Math.min(30, paso * 0.95)}" fill="${U.aros[p.clase] || '#2c2531'}" pointer-events="none">${p.nombre[0]}</text>`;
+        });
+      }
+    }
+    const mal = opciones.avisos ? choques() : new Map();
+    est.pos.forEach((k, i) => {
+      if (k === null) return;
+      const aro = i === sel ? '#e0a82e' : marcadosMal.has(i) || mal.has(i) ? '#c0303a' : est.resuelto && i === ASESINO ? '#c0303a' : null;
+      s += `<g transform="translate(${E.X(Co(k)) + 5} ${E.Y(F(k)) + 5}) scale(.9)" pointer-events="none">${fichaG(P[i], 'b' + i, aro)}</g>`;
+    });
+    capaViva.innerHTML = s;
+  }
+  const fichasEl = document.getElementById('fichas'), cartasEl = document.getElementById('cartas'), elegidoEl = document.getElementById('elegido');
+  function pintarSeleccion() {
+    fichasEl.querySelectorAll('.ficha').forEach((b) => { const i = +b.dataset.i; b.setAttribute('aria-pressed', String(i === sel)); b.classList.toggle('puesta', est.pos[i] !== null); });
+    cartasEl.querySelectorAll('.carta').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.i === sel)));
+    if (sel === null) {
+      elegidoEl.className = 'elegido vacio';
+      elegidoEl.textContent = modo === 'tachar' ? 'Toca una casilla para tacharla (ahí no hay nadie).' : 'Toca un retrato para elegir personaje.';
+      return;
+    }
+    const p = P[sel], mal = opciones.avisos ? (choques().get(sel) || []) : [];
+    const donde = est.pos[sel] !== null ? ` · en ${nomCelda(est.pos[sel])}` : '';
+    const clase = nombreClase(p);
+    elegidoEl.className = 'elegido';
+    elegidoEl.innerHTML = `${ficha(p, 'e' + sel)}<div><div><span class="nom">${p.nombre}</span>${clase ? `<span class="clase">${clase}</span>` : ''}<span style="font-size:14px;color:var(--tinta2)">${donde}</span></div>` +
+      `<div class="txt">${p.pista}</div>${mal.map((t) => `<div class="aviso">⚠ ${t}</div>`).join('')}` +
+      `<div style="font-size:14px;color:var(--tinta2)">${modo === 'notas' ? 'Toca casillas para apuntar o borrar su inicial.' : est.pos[sel] !== null ? 'Toca otra casilla para moverlo, o su ficha para quitarlo.' : 'Toca una casilla del tablero para colocarlo.'}</div></div>`;
+  }
+  function pintar() { pintarTablero(); pintarSeleccion(); }
+  function guardarCaso() { guardado.casos[C.id] = est; guardar(); }
+  function cambiado() { marcadosMal.clear(); guardarCaso(); pintar(); }
+
+  // ---------- avisos ----------
+  const toastEl = document.getElementById('toast');
+  let toastT = null;
+  function aviso(t, ms) { toastEl.textContent = t; toastEl.classList.add('ver'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('ver'), ms || 3400); }
+
+  // ---------- sonido (sintetizado) ----------
+  let actx = null;
+  function audio() { if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); } if (actx.state === 'suspended') actx.resume(); return actx; }
+  function tono(f, t0, dur, tipo, vol) {
+    const a = audio(); if (!a) return;
+    const o = a.createOscillator(), g = a.createGain(), t = a.currentTime + t0;
+    o.type = tipo; o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur + 0.03);
+  }
+  function ruido(t0, dur, fc, vol) {
+    const a = audio(); if (!a) return;
+    const n = Math.floor(a.sampleRate * dur), b = a.createBuffer(1, n, a.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const s = a.createBufferSource(), fi = a.createBiquadFilter(), g = a.createGain(), t = a.currentTime + t0;
+    s.buffer = b; fi.type = 'bandpass'; fi.frequency.value = fc; fi.Q.value = 1.2; g.gain.value = vol;
+    s.connect(fi); fi.connect(g); g.connect(a.destination); s.start(t);
+  }
+  const SONIDOS = {
+    poner: () => { tono(262, 0, 0.16, 'triangle', 0.22); ruido(0, 0.05, 1400, 0.5); },
+    quitar: () => { tono(392, 0, 0.09, 'triangle', 0.12); },
+    lapiz: () => { ruido(0, 0.06, 3200, 0.35); ruido(0.07, 0.05, 3600, 0.25); },
+    no: () => { tono(196, 0, 0.16, 'triangle', 0.18); tono(147, 0.11, 0.22, 'triangle', 0.18); },
+    bien: () => [523, 659, 784].forEach((f, i) => tono(f, i * 0.09, 0.3, 'triangle', 0.16)),
+    pista: () => { tono(784, 0, 0.16, 'sine', 0.12); tono(1047, 0.1, 0.22, 'sine', 0.1); },
+    fanfarria: () => [[392, 0, 0.16], [392, 0.17, 0.08], [523, 0.27, 0.2], [659, 0.5, 0.2], [784, 0.74, 0.5], [659, 1.28, 0.14], [784, 1.44, 0.8]].forEach(([f, t, d]) => { tono(f, t, d, 'square', 0.05); tono(f / 2, t, d, 'triangle', 0.08); }),
+    asesino: () => { [110, 131, 156].forEach((f) => tono(f, 0, 1.2, 'sawtooth', 0.035)); tono(55, 0, 1.4, 'triangle', 0.2); },
+  };
+  function sonar(n) { if (!opciones.sonido) return; try { SONIDOS[n](); } catch (e) { /* sin audio */ } }
+  const bSonido = document.getElementById('bSonido');
+  const ICO_SON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9c1.5 1.5 1.5 4.5 0 6M18.5 6.5c3 3 3 8 0 11"/></svg>';
+  const ICO_MUDO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+  function pintarSonido() { bSonido.innerHTML = opciones.sonido ? ICO_SON : ICO_MUDO; bSonido.setAttribute('aria-label', opciones.sonido ? 'Quitar el sonido' : 'Poner el sonido'); bSonido.title = bSonido.getAttribute('aria-label') + ' (tecla M)'; }
+  function alternarSonido() { opciones.sonido = !opciones.sonido; guardar(); pintarSonido(); if (opciones.sonido) sonar('bien'); }
+  bSonido.addEventListener('click', alternarSonido);
+
+  // ---------- jugar ----------
+  function apuntar() { historial.push(JSON.stringify({ pos: est.pos, notas: est.notas, tachas: est.tachas })); if (historial.length > 300) historial.shift(); }
+  function deshacer() {
+    if (est.resuelto) { aviso('El caso ya está resuelto. Pulsa «Borrar» para empezar de nuevo.'); return; }
+    if (!historial.length) { aviso('No hay nada que deshacer.'); return; }
+    const h = JSON.parse(historial.pop());
+    est.pos = h.pos; est.notas = h.notas; est.tachas = h.tachas;
+    sonar('quitar'); cambiado();
+  }
+  function elegir(i) { sel = i === null || i === sel ? null : i; if (sel !== null && modo === 'tachar') ponerModo('colocar'); pintar(); }
+  function quitar(i) { apuntar(); est.pos[i] = null; sonar('quitar'); sel = null; cambiado(); }
+  function tocarCelda(k) {
+    if (est.resuelto) { aviso('El caso ya está resuelto. Pulsa «Borrar» para empezar de nuevo.'); return; }
+    const ocupante = est.pos.indexOf(k), o = obj(k);
+    if (modo === 'colocar') {
+      if (sel === null) {
+        if (ocupante >= 0) { elegir(ocupante); return; }
+        aviso(ocupable(k) ? 'Elige primero un personaje: toca su retrato.' : `En ${nomCelda(k)} hay ${unObj(o)}: ahí no puede estar nadie.`);
+        return;
+      }
+      if (ocupante === sel) { quitar(sel); return; }
+      if (!ocupable(k)) { aviso(`En ${nomCelda(k)} hay ${unObj(o)}: ahí no puede estar nadie.`); sonar('no'); return; }
+      if (opciones.avisos) { const m = motivoNo(sel, k); if (m) { aviso(m, 4400); sonar('no'); return; } }
+      apuntar();
+      if (ocupante >= 0) est.pos[ocupante] = null;
+      est.pos[sel] = k; est.tachas[k] = false;
+      sonar('poner'); sel = null; cambiado(); revisarFinal();
+      return;
+    }
+    if (!ocupable(k)) { aviso(`En ${nomCelda(k)} hay ${unObj(o)}: ahí no puede estar nadie.`); return; }
+    if (ocupante >= 0) { aviso(`Ahí está ${P[ocupante].nombre}.`); return; }
+    if (modo === 'notas') {
+      if (sel === null) { aviso('Para apuntar una nota, elige primero un personaje (su inicial irá en la casilla).'); return; }
+      apuntar(); est.notas[k] ^= 1 << sel; sonar('lapiz'); cambiado(); return;
+    }
+    apuntar(); est.tachas[k] = !est.tachas[k]; sonar('lapiz'); cambiado();
+  }
+  svg.addEventListener('click', (ev) => { const t = ev.target.closest('[data-k]'); if (t && C) tocarCelda(+t.dataset.k); });
+  fichasEl.addEventListener('click', (ev) => { const b = ev.target.closest('.ficha'); if (b) { audio(); elegir(+b.dataset.i); } });
+  cartasEl.addEventListener('click', (ev) => { const b = ev.target.closest('.carta'); if (b) { audio(); elegir(+b.dataset.i); document.getElementById('tablero').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
+  const modosEl = document.getElementById('modos');
+  function ponerModo(m) { modo = m; modosEl.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.modo === m))); if (m === 'tachar') sel = null; if (C) pintar(); }
+  modosEl.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) ponerModo(b.dataset.modo); });
+
+  // ---------- diálogos ----------
+  const dlg = document.getElementById('dlg'), dlgCuerpo = document.getElementById('dlgCuerpo');
+  function abrirDialogo(html, alAbrir) { dlgCuerpo.innerHTML = html; if (!dlg.open) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); } dlgCuerpo.scrollTop = 0; if (alAbrir) alAbrir(dlgCuerpo); }
+  function cerrarDialogo() { if (dlg.open) { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); } }
+  dlg.addEventListener('click', (ev) => { if (ev.target === dlg) cerrarDialogo(); });
+
+  document.getElementById('bBorrar').addEventListener('click', () => {
+    abrirDialogo('<h2>¿Empezar de nuevo?</h2><p style="text-align:center">Se quitan todos los personajes, las notas y las casillas tachadas de este caso.</p><div class="pie"><button class="boton principal" data-a="si">Sí, borrar todo</button><button class="boton" data-a="no">No</button></div>', (c) => {
+      c.querySelector('[data-a="si"]').onclick = () => { apuntar(); const vistas = est.pistasVistas; est = nuevo(); est.pistasVistas = vistas; sel = null; ocultarPista(); cerrarDialogo(); sonar('quitar'); cambiado(); };
+      c.querySelector('[data-a="no"]').onclick = cerrarDialogo;
+    });
+  });
+  document.getElementById('bDeshacer').addEventListener('click', deshacer);
+  document.getElementById('bComprobar').addEventListener('click', () => {
+    const puestos = est.pos.map((k, i) => (k === null ? -1 : i)).filter((i) => i >= 0);
+    if (!puestos.length) { aviso('Aún no has colocado a nadie.'); return; }
+    const mal = puestos.filter((i) => est.pos[i] !== SOL[i]);
+    const tachasMal = est.tachas.filter((t, k) => t && SOL.includes(k)).length;
+    marcadosMal = new Set(mal); pintar();
+    let t = mal.length ? `${mal.length === 1 ? 'Hay 1 personaje mal colocado' : `Hay ${mal.length} personajes mal colocados`} (con el aro rojo).` : `Todo bien por ahora: ${puestos.length === 1 ? 'el que has colocado está' : `los ${puestos.length} que has colocado están`} en su sitio.`;
+    if (tachasMal) t += ` Y has tachado ${tachasMal === 1 ? 'una casilla' : tachasMal + ' casillas'} donde sí hay alguien.`;
+    sonar(mal.length || tachasMal ? 'no' : 'bien'); aviso(t, 5400);
+  });
+
+  // ---------- pistas ----------
+  const pistaCaja = document.getElementById('pistaCaja');
+  function ocultarPista() { pistaCaja.hidden = true; pistaCaja.innerHTML = ''; resaltes = []; }
+  function mostrarPaso(n, completo) {
+    const p = PISTAS[n];
+    resaltes = p.resaltar;
+    if (!est.pistasVistas.includes(n)) { est.pistasVistas.push(n); guardarCaso(); }
+    pistaCaja.hidden = false;
+    pistaCaja.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-family:var(--fuente-nombre);font-size:20px">Pista ${n + 1} de ${PISTAS.length}</b><button class="boton icono" data-a="cerrar" aria-label="Cerrar la pista">✕</button></div>` +
+      `<p style="margin:4px 0">${p.empujon}</p>` +
+      (completo ? `<p style="margin:6px 0">${p.texto}</p><div class="pie" style="margin-top:8px">${p.quien.length ? `<button class="boton principal" data-a="colocar">Colocar ${o_(p.quien.map((id) => P[IDX[id]].nombre)).replace(/ o /, ' y ')}</button>` : '<button class="boton principal" data-a="vale">Entendido</button>'}</div>`
+        : '<div class="pie" style="margin-top:8px"><button class="boton" data-a="mas">Ver el razonamiento</button></div>');
+    pistaCaja.querySelector('[data-a="cerrar"]').onclick = () => { ocultarPista(); pintar(); };
+    const mas = pistaCaja.querySelector('[data-a="mas"]');
+    if (mas) mas.onclick = () => mostrarPaso(n, true);
+    const vale = pistaCaja.querySelector('[data-a="vale"]');
+    if (vale) vale.onclick = () => { ocultarPista(); pintar(); };
+    const col = pistaCaja.querySelector('[data-a="colocar"]');
+    if (col) col.onclick = () => {
+      apuntar();
+      for (const id of p.quien) { const i = IDX[id], k = SOL[i], otro = est.pos.indexOf(k); if (otro >= 0 && otro !== i) est.pos[otro] = null; est.pos[i] = k; est.tachas[k] = false; }
+      sonar('poner'); sel = null; ocultarPista(); cambiado(); revisarFinal();
+    };
+    sonar('pista'); pintar();
+    pistaCaja.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function pedirPista() {
+    if (est.resuelto) { aviso('El caso ya está resuelto.'); return; }
+    const mal = P.map((_, i) => i).filter((i) => est.pos[i] !== null && est.pos[i] !== SOL[i]);
+    if (mal.length) {
+      marcadosMal = new Set(mal); pintar();
+      abrirDialogo(`<h2>Antes de la pista…</h2><p style="text-align:center">${mal.length === 1 ? 'Hay un personaje mal colocado' : `Hay ${mal.length} personajes mal colocados`}: ${o_(mal.map((i) => P[i].nombre)).replace(/ o /, ' y ')} (con el aro rojo). Las pistas siguen la deducción desde el principio, así que conviene quitar${mal.length === 1 ? 'lo' : 'los'} primero.</p>` +
+        `<div class="pie"><button class="boton principal" data-a="quitar">Quitar${mal.length === 1 ? 'lo' : 'los'} y ver la pista</button><button class="boton" data-a="no">Ahora no</button></div>`, (c) => {
+        c.querySelector('[data-a="quitar"]').onclick = () => { apuntar(); for (const i of mal) est.pos[i] = null; cerrarDialogo(); cambiado(); pedirPista(); };
+        c.querySelector('[data-a="no"]').onclick = cerrarDialogo;
+      });
+      return;
+    }
+    // la siguiente pista pendiente: la primera que coloca a alguien que aún no está en su sitio; las que no colocan a nadie
+    // (trozos del Gran Maestro) están pendientes si no se han visto y la siguiente que coloca aún no está cumplida
+    const falta = (p) => p.quien.some((id) => est.pos[IDX[id]] !== SOL[IDX[id]]);
+    const pendiente = (p, x) => {
+      if (p.quien.length) return falta(p);
+      if (est.pistasVistas.includes(x)) return false;
+      const sig = PISTAS.slice(x + 1).find((q) => q.quien.length);
+      return !sig || falta(sig);
+    };
+    const n = PISTAS.findIndex(pendiente);
+    if (n < 0) { aviso('Ya están todos en su sitio: solo falta señalar al asesino.'); revisarFinal(true); return; }
+    if (!est.pistasVistas.length) {
+      abrirDialogo('<h2>¿Una pista?</h2><p style="text-align:center">La pista te enseña el siguiente paso de la deducción: primero un empujoncito y, si quieres, el razonamiento entero.</p><div class="pie"><button class="boton principal" data-a="si">Sí, una pista</button><button class="boton" data-a="no">Mejor sigo yo</button></div>', (c) => {
+        c.querySelector('[data-a="si"]').onclick = () => { cerrarDialogo(); mostrarPaso(n, false); };
+        c.querySelector('[data-a="no"]').onclick = cerrarDialogo;
+      });
+      return;
+    }
+    mostrarPaso(n, false);
+  }
+  document.getElementById('bPista').addEventListener('click', pedirPista);
+
+  // ---------- final ----------
+  function revisarFinal(forzar) {
+    if (est.resuelto || est.pos.some((k) => k === null)) return;
+    if (!est.pos.every((k, i) => k === SOL[i])) { if (!forzar) { sonar('no'); aviso(`Ya están ${({ 9: 'los nueve', 10: 'los diez' })[P.length] || 'todos'}… pero algo no cuadra. Repasa las pistas o pulsa «Comprobar».`, 5400); } return; }
+    sonar('bien'); setTimeout(preguntarAsesino, 450);
+  }
+  function preguntarAsesino() {
+    if (est.resuelto || (dlg.open && dlgCuerpo.querySelector('.sospechosos'))) return;
+    const sosp = P.map((_, i) => i).filter((i) => i !== VICTIMA);
+    abrirDialogo(`<h2>¿Quién es el asesino?</h2><p style="text-align:center">Están todos en su sitio. ${P[VICTIMA].nombre} se quedó a solas con su asesino: ¿quién fue?</p>` +
+      `<div class="sospechosos">${sosp.map((i) => `<button data-i="${i}">${ficha(P[i], 's' + i)}<span>${P[i].nombre}</span></button>`).join('')}</div>` +
+      '<p id="respuesta" style="text-align:center;min-height:1.4em;font-weight:700;color:var(--rojo)"></p><div class="pie"><button class="boton" data-a="luego">Volver al tablero</button></div>', (c) => {
+      c.querySelectorAll('.sospechosos button').forEach((b) => {
+        b.onclick = () => {
+          const i = +b.dataset.i;
+          if (i === ASESINO) { resolver(); return; }
+          b.classList.remove('mal'); void b.offsetWidth; b.classList.add('mal'); sonar('no');
+          c.querySelector('#respuesta').textContent = `No: ${P[i].nombre} no estaba a solas con ${P[VICTIMA].nombre}. Mira bien su zona.`;
+        };
+      });
+      c.querySelector('[data-a="luego"]').onclick = cerrarDialogo;
+    });
+  }
+  function resolver() {
+    est.resuelto = true; guardarCaso(); pintar();
+    sonar('asesino'); setTimeout(() => sonar('fanfarria'), 1100);
+    const a = P[ASESINO], np = est.pistasVistas.length, sig = CASOS.findIndex((c) => !(guardado.casos[c.id] && guardado.casos[c.id].resuelto));
+    abrirDialogo(`<div class="resuelto"><h2>¡Caso resuelto!</h2>${ficha(a, 'fin', '#c0303a')}` +
+      `<p style="font-size:19px"><b>${a.nombre}</b> estaba a solas con ${P[VICTIMA].nombre} ${enZona(zona(SOL[VICTIMA]))}.</p>` +
+      `<p>${np ? `Lo has resuelto con ${np === 1 ? 'una pista' : np + ' pistas'}.` : '<b>¡Y sin ninguna pista!</b>'}</p>` +
+      `<div class="pie">${sig >= 0 ? `<button class="boton principal" data-a="sig">Siguiente caso: ${CASOS[sig].titulo}</button>` : ''}<button class="boton" data-a="ver">Ver el tablero</button></div></div>`, (c) => {
+      c.querySelector('[data-a="ver"]').onclick = cerrarDialogo;
+      const s = c.querySelector('[data-a="sig"]');
+      if (s) s.onclick = () => { cerrarDialogo(); location.hash = CASOS[sig].id; };
+    });
+  }
+
+  // ---------- normas ----------
+  // dibujito de la regla especial: el objeto prohibido (gatos), el icono de la zona especial o una casilla a la sombra
+  function iconoRegla() {
+    const e = C.especial || {};
+    if (A.iconoRegla) return A.iconoRegla();
+    if (e.tipo === 'nadieJunto') { const t = Object.entries(C.objetosInfo).find(([k]) => k === e.objeto); return t ? A.objetos[t[1].dib]({}) : ''; }
+    if (e.tipo === 'sombra') return '<rect x="6" y="6" width="88" height="88" rx="10" fill="#f3e3c3" stroke="#2c2531" stroke-width="3"/><path d="M8 30L30 8M8 54L54 8M8 78L78 8M18 92L92 18M42 92L92 42M66 92L92 66" stroke="#30406a" stroke-width="7" opacity=".3"/>';
+    const m = (A.marcos || {})[e.atributo];
+    return m && m.icono ? `<g transform="translate(14 28) scale(1.45)">${m.icono()}</g>` : '';
+  }
+  function icoObj(t) { const inf = C.objetosInfo[t]; return `<svg viewBox="${inf.ancho === 2 ? '0 -50 200 200' : '-8 -18 116 116'}" aria-hidden="true">${A.objetos[inf.dib]({ tipo: null })}</svg>`; }
+  function normas(inicio) {
+    const presentes = [...new Set(C.objetos.join('').replace(/\./g, ''))];
+    const si = presentes.filter((t) => C.objetosInfo[t].ocupable), no = presentes.filter((t) => !C.objetosInfo[t].ocupable);
+    const fig = (t) => `<figure>${icoObj(t)}${C.objetosInfo[t].nombre}</figure>`;
+    const clases = C.clases ? `<div class="clases">${Object.entries(C.clases).map(([k, n]) => `<div><svg viewBox="0 0 100 100">${(A.fondos[k] || (() => ''))()}</svg><b class="n">${n}</b>${U.clases[k]}</div>`).join('')}</div>` : '';
+    abrirDialogo(`<h2>${inicio ? C.titulo : 'Normas'}</h2>` +
+      (inicio ? `<p style="text-align:center;font-style:italic">${C.entradilla}</p>` : '') +
+      `<p>Averigua dónde estaba cada personaje y quién mató a <b>${P[VICTIMA].nombre}</b>.</p>` +
+      // el Gran Maestro avisa de su escalón: hace falta suponer algo dentro de otra suposición
+      (C.nivel === 'Gran Maestro' ? '<p style="background:#f6edd6;border:2px solid #8a6418;border-radius:12px;padding:8px 12px"><b>Caso de Gran Maestro.</b> En los casos anteriores bastaba con probar una casilla («¿y si estuviera aquí?») y ver que algo fallaba. Aquí llega un momento en que ninguna prueba sencilla falla a la vista: hace falta <b>una segunda prueba dentro de la primera</b> (cuando la segunda demuestra que la primera no puede ser, se tacha la casilla de la primera)… o dar con un razonamiento de conjunto, muy bien escondido, que la evita. Usa las notas sin miedo; si te atascas, las pistas te enseñan el camino de la doble prueba, paso a paso.' +
+        // si es robusto, la cuenta de zonas se dice en voz alta: ni contando se salta el paso doble
+        (C.nivel === 'Gran Maestro' ? ` <br><b>Una cuenta que ayuda:</b> ${P.length} personas y ${new Set(C.zonas.join('')).size} zonas; la víctima está con su asesino y ninguna zona queda vacía, así que solo una zona más tiene dos personas y las demás tienen una.` : '') + '</p>' : '') +
+      '<p>• En cada <b>fila</b> y en cada <b>columna</b> hay exactamente <b>una persona</b>.</p>' +
+      '<p>• Coloca a los sospechosos según sus pistas; la víctima va en la casilla que queda libre.</p>' +
+      '<p>• El <b>asesino</b> es la única persona que estaba en la misma zona que la víctima.</p>' +
+      (C.sinVacias ? '<p>• <b>Ninguna zona se quedó vacía.</b></p>' : '') +
+      '<p>• «Al lado de» es en una casilla vecina: arriba, abajo, a la izquierda o a la derecha (en diagonal no vale). «Al este de» es en <b>cualquier</b> columna a su derecha (no hace falta que sea la de al lado), y «al norte de», en cualquier fila más arriba.</p>' +
+      `<h3>Regla especial: ${U.regla}</h3><div style="display:flex;gap:12px;align-items:center"><svg viewBox="0 0 100 100" style="width:64px;height:64px;flex:none" aria-hidden="true">${iconoRegla()}</svg><p style="margin:0">${U.textoRegla}</p></div>${clases}` +
+      `<h3>Objetos</h3><div class="obj">${si.length ? `<div class="si"><b>Se pueden ocupar</b><div class="lista">${si.map(fig).join('')}</div></div>` : ''}<div class="no"><b>No se pueden ocupar</b><div class="lista">${no.map(fig).join('')}</div></div></div>` +
+      '<h3>Cómo se juega</h3><p><b>Colocar</b>: toca un retrato y luego una casilla. Para moverlo, toca otra casilla; para quitarlo, toca su ficha dos veces.</p>' +
+      '<p><b>Notas</b>: con un personaje elegido, apunta su inicial en las casillas donde podría estar. <b>Tachar</b>: marca las casillas donde no hay nadie.</p>' +
+      '<p style="font-size:15px;color:var(--tinta2)">En el ordenador: la inicial de cada uno lo elige; Ctrl+Z deshace; M quita el sonido.</p>' +
+      '<h3>Ayudas</h3><div class="ajustes">' +
+      `<label><input type="checkbox" id="opSombra" data-op="sombra"${opciones.sombra ? ' checked' : ''}> Oscurecer las filas y columnas que ya tienen a alguien.</label>` +
+      `<label><input type="checkbox" id="opAvisos" data-op="avisos"${opciones.avisos ? ' checked' : ''}> Avisarme si coloco a alguien donde su pista o las normas no lo permiten.</label>` +
+      `<label><input type="checkbox" id="opOjo" data-op="ojo"${opciones.ojo ? ' checked' : ''}> Velar las casillas donde no puede estar el personaje elegido.</label></div>` +
+      `<div class="pie"><button class="boton principal" data-a="ok">${inicio ? 'Empezar la investigación' : 'Seguir'}</button></div>`, (c) => {
+      c.querySelectorAll('[data-op]').forEach((x) => { x.onchange = () => { opciones[x.dataset.op] = x.checked; guardar(); pintar(); }; });
+      c.querySelector('[data-a="ok"]').onclick = () => { audio(); cerrarDialogo(); };
+    });
+  }
+  document.getElementById('bNormas').addEventListener('click', () => normas(false));
+
+  // ---------- abrir un caso ----------
+  function ponerTema(caso) {
+    const r = document.documentElement.style, pal = (caso && MUNDOS[caso.id] && MUNDOS[caso.id].paleta) || {}, u = caso ? uiDe(caso) : null;
+    for (const [k, v] of Object.entries({ papel: pal.papel, papel2: pal.papel2, tinta: pal.tinta, tinta2: pal.tinta2, acento: pal.acento, acento2: pal.acento2 })) if (v) r.setProperty('--' + k, v); else r.removeProperty('--' + k);
+    if (u) { r.setProperty('--fuente-titulo', u.fuente); r.setProperty('--fuente-nombre', u.nombre); } else { r.removeProperty('--fuente-titulo'); r.removeProperty('--fuente-nombre'); }
+  }
+  function abrirCaso(n) {
+    C = CASOS[n]; SEC = SECRETOS[n]; A = MUNDOS[C.id]; U = uiDe(C); P = C.personajes; N = C.N; NN = N * N;
+    IDX = Object.fromEntries(P.map((p, i) => [p.id, i])); VICTIMA = P.findIndex((p) => p.victima);
+    SOL = SEC.sol; ASESINO = IDX[SEC.asesino];
+    PISTAS = SEC.pistas.map((p) => Object.assign({}, p, { resaltar: (p.resaltar || []).map(celdaDe) }));
+    const g = guardado.casos[C.id];
+    est = g && Array.isArray(g.pos) && g.pos.length === P.length && Array.isArray(g.notas) && g.notas.length === NN ? Object.assign(nuevo(), g) : nuevo();
+    sel = null; modo = 'colocar'; historial = []; marcadosMal = new Set(); resaltes = [];
+    ponerTema(C);
+    document.getElementById('capitulo').textContent = `${C.nivel} · ${C.mundo} · ${N}×${N}`;
+    document.getElementById('titulo').textContent = C.titulo;
+    document.getElementById('entradilla').textContent = C.entradilla;
+    document.title = `${C.titulo} · ${COLECCION.titulo}`;
+    E = window.ESCENA_CR(C, A, { coords: true });
+    svg.setAttribute('viewBox', `0 0 ${E.W} ${E.H}`);
+    let toques = '';
+    for (let k = 0; k < NN; k++) toques += `<rect class="celda" data-k="${k}" x="${E.X(Co(k))}" y="${E.Y(F(k))}" width="100" height="100" fill="transparent"/>`;
+    svg.innerHTML = `<g>${E.svg}</g><g id="capaViva"></g><g>${toques}</g>`;
+    capaViva = svg.querySelector('#capaViva');
+    fichasEl.style.setProperty('--n', P.length);
+    fichasEl.classList.toggle('largos', P.some((p) => p.nombre.length > 8));
+    fichasEl.innerHTML = P.map((p, i) => `<button class="ficha" data-i="${i}" aria-pressed="false" aria-label="${p.nombre}" title="${p.nombre} (tecla ${p.nombre[0]})">${ficha(p, 'c' + i)}<span class="ini"><span class="largo">${p.nombre}</span><span class="corto">${p.nombre[0]}</span></span></button>`).join('');
+    cartasEl.innerHTML = P.map((p, i) => `<button class="carta${p.victima ? ' V' : ''}" data-i="${i}" aria-pressed="false">${carta(p)}<span class="placa" style="border-color:${U.aros[p.clase] || 'var(--tinta)'}">${p.nombre}</span><span class="pista"${p.victima ? '' : ` style="background:${U.fondoFicha[p.clase] || 'var(--papel2)'}"`}>${p.pista}</span></button>`).join('');
+    document.getElementById('notasGen').innerHTML = `<div class="especial"><b>${U.regla}.</b> ${U.textoRegla}</div>` + (C.sinVacias ? '<div><b>Ninguna</b> zona se quedó <b>vacía</b>.</div>' : '');
+    ocultarPista(); ponerModo('colocar'); pintarSonido();
+    document.getElementById('portada').hidden = true; document.getElementById('partida').hidden = false;
+    window.scrollTo(0, 0);
+    if (!guardado.vistos[C.id]) { guardado.vistos[C.id] = true; guardar(); normas(true); }
+    else if (est.resuelto) aviso('Este caso ya lo resolviste. Pulsa «Borrar» para jugarlo otra vez.', 4200);
+  }
+
+  // ---------- portada ----------
+  function pintarPortada() {
+    ponerTema(null);
+    document.title = COLECCION.titulo;
+    C = null;
+    const tarjeta = (c) => {
+      const e = window.ESCENA_CR(c, MUNDOS[c.id], {}), g = guardado.casos[c.id];
+      const puestos = g && g.pos ? g.pos.filter((k) => k !== null).length : 0;
+      const estado = g && g.resuelto ? `<span class="estado hecho">✓ Resuelto${g.pistasVistas && g.pistasVistas.length ? '' : ', sin pistas'}</span>` : puestos ? `<span class="estado">En curso: ${puestos} de ${c.personajes.length} colocados</span>` : '<span class="estado">Sin empezar</span>';
+      return `<button class="caso" data-id="${c.id}"><span class="nivel"><span style="color:${NIVEL_COLOR[c.nivel]}">${c.nivel}</span><span>${c.N}×${c.N}</span></span>` +
+        `<span class="mini"><svg viewBox="0 0 ${e.W} ${e.H}" aria-hidden="true">${e.svg.replace(/id="t-/g, `id="m${c.id}-t-`).replace(/url\(#t-/g, `url(#m${c.id}-t-`)}</svg></span>` +
+        `<span class="tit" style="font-family:${uiDe(c).fuente}">${c.titulo}</span><span class="mundo">${c.lugar || c.mundo + ' · ' + uiDe(c).regla}</span>${estado}</button>`;
+    };
+    // con secciones (p. ej. «Cinco mundos» y «La Edad Media»), un título y una rejilla por sección
+    const secciones = [...new Set(CASOS.map((c) => c.seccion || ''))];
+    document.getElementById('casos').innerHTML = secciones.map((sec) => (sec ? `<h2 class="seccion">${sec}</h2>` : '') + `<div class="casos">${CASOS.filter((c) => (c.seccion || '') === sec).map(tarjeta).join('')}</div>`).join('');
+    document.getElementById('partida').hidden = true; document.getElementById('portada').hidden = false;
+    cerrarDialogo();
+  }
+  document.getElementById('casos').addEventListener('click', (ev) => { const b = ev.target.closest('.caso'); if (b) { audio(); location.hash = b.dataset.id; } });
+  document.getElementById('bVolver').addEventListener('click', () => { location.hash = ''; });
+  function ruta() {
+    const id = (location.hash || '').replace('#', '');
+    const n = CASOS.findIndex((c) => c.id === id);
+    if (n >= 0) abrirCaso(n); else pintarPortada();
+  }
+  window.addEventListener('hashchange', ruta);
+
+  // ---------- teclado ----------
+  document.addEventListener('keydown', (ev) => {
+    if (dlg.open || !C) return;
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); deshacer(); return; }
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (ev.key === 'Escape') { elegir(null); return; }
+    if (ev.key.toLowerCase() === 'm') { alternarSonido(); return; }
+    const i = P.findIndex((p) => p.nombre[0].toLowerCase() === ev.key.toLowerCase());
+    if (i >= 0) { audio(); elegir(i); }
+  });
+
+  pintarSonido();
+  ruta();
+  if (/[?&]prueba(=|&|$)/.test(location.search)) window.__cr = { est: () => est, tocar: (k) => tocarCelda(k), elegir: (i) => elegir(i), abrir: (id) => { location.hash = id; } };
+})();
+
+</script>
+</body>
+</html>
