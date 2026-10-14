@@ -1236,7 +1236,6 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
     bien: () => [523, 659, 784].forEach((f, i) => tono(f, i * 0.09, 0.3, 'triangle', 0.16)),
     pista: () => { tono(784, 0, 0.16, 'sine', 0.12); tono(1047, 0.1, 0.22, 'sine', 0.1); },
     fanfarria: () => [[392, 0, 0.16], [392, 0.17, 0.08], [523, 0.27, 0.2], [659, 0.5, 0.2], [784, 0.74, 0.5], [659, 1.28, 0.14], [784, 1.44, 0.8]].forEach(([f, t, d]) => { tono(f, t, d, 'square', 0.05); tono(f / 2, t, d, 'triangle', 0.08); }),
-    asesino: () => { [110, 131, 156].forEach((f) => tono(f, 0, 1.2, 'sawtooth', 0.035)); tono(55, 0, 1.4, 'triangle', 0.2); },
   };
   function sonar(n) { if (!opciones.sonido) return; try { SONIDOS[n](); } catch (e) { /* sin audio */ } }
   const bSonido = document.getElementById('bSonido');
@@ -1403,7 +1402,7 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
   }
   function resolver() {
     est.resuelto = true; guardarCaso(); pintar();
-    sonar('asesino'); setTimeout(() => sonar('fanfarria'), 1100);
+    sonar('fanfarria');
     const a = P[ASESINO], np = est.pistasVistas.length, sig = CASOS.findIndex((c) => !(guardado.casos[c.id] && guardado.casos[c.id].resuelto));
     abrirDialogo(`<div class="resuelto"><h2>¡Caso resuelto!</h2>${ficha(a, 'fin', '#c0303a')}` +
       `<p style="font-size:19px"><b>${a.nombre}</b> estaba a solas con ${P[VICTIMA].nombre} ${enZona(zona(SOL[VICTIMA]))}.</p>` +
