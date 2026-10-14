@@ -1228,6 +1228,23 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
     s.buffer = b; fi.type = 'bandpass'; fi.frequency.value = fc; fi.Q.value = 1.2; g.gain.value = vol;
     s.connect(fi); fi.connect(g); g.connect(a.destination); s.start(t);
   }
+  // trombón con sordina, para el «wah-wah» (Fali, 15-oct): diente de sierra por un filtro que se abre y se cierra en cada nota;
+  // con vibrato, la nota tiembla y cae un poco hacia el final
+  function trombon(f, t0, dur, vol, vibrato) {
+    const a = audio(); if (!a) return;
+    const o = a.createOscillator(), fi = a.createBiquadFilter(), g = a.createGain(), t = a.currentTime + t0;
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(f, t);
+    if (vibrato) {
+      const l = a.createOscillator(), lg = a.createGain();
+      l.frequency.value = 5.5; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * 0.03, t + dur * 0.4);
+      l.connect(lg); lg.connect(o.frequency); l.start(t); l.stop(t + dur + 0.05);
+      o.frequency.setTargetAtTime(f * 0.94, t + dur * 0.5, dur * 0.25);
+    }
+    fi.type = 'lowpass'; fi.Q.value = 5;
+    fi.frequency.setValueAtTime(f * 1.2, t); fi.frequency.linearRampToValueAtTime(f * 6, t + 0.1); fi.frequency.linearRampToValueAtTime(f * 2, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.03); g.gain.setValueAtTime(vol, t + dur * 0.75); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(fi); fi.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur + 0.05);
+  }
   const SONIDOS = {
     poner: () => { tono(262, 0, 0.16, 'triangle', 0.22); ruido(0, 0.05, 1400, 0.5); },
     quitar: () => { tono(392, 0, 0.09, 'triangle', 0.12); },
@@ -1236,7 +1253,7 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
     bien: () => [523, 659, 784].forEach((f, i) => tono(f, i * 0.09, 0.3, 'triangle', 0.16)),
     pista: () => { tono(784, 0, 0.16, 'sine', 0.12); tono(1047, 0.1, 0.22, 'sine', 0.1); },
     fanfarria: () => [[392, 0, 0.16], [392, 0.17, 0.08], [523, 0.27, 0.2], [659, 0.5, 0.2], [784, 0.74, 0.5], [659, 1.28, 0.14], [784, 1.44, 0.8]].forEach(([f, t, d]) => { tono(f, t, d, 'square', 0.05); tono(f / 2, t, d, 'triangle', 0.08); }),
-    golpe: () => { [110, 131, 156].forEach((f) => tono(f, 0, 1.2, 'sawtooth', 0.035)); tono(55, 0, 1.4, 'triangle', 0.2); },
+    wahwah: () => [[294, 0, 0.42], [277, 0.45, 0.42], [262, 0.9, 0.42], [247, 1.35, 1.1]].forEach(([f, t, d], n) => trombon(f, t, d, 0.07, n === 3)),
   };
   function sonar(n) { if (!opciones.sonido) return; try { SONIDOS[n](); } catch (e) { /* sin audio */ } }
   const bSonido = document.getElementById('bSonido');
@@ -1379,12 +1396,12 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
   document.getElementById('bPista').addEventListener('click', pedirPista);
 
   // ---------- final ----------
-  // Con el tablero completo suena UNA cosa: la fanfarria si todo está bien y el golpe grave si algo falla (Fali, 14-oct; antes
+  // Con el tablero completo suena UNA cosa: la fanfarria si todo está bien y el «wah-wah» de trombón si algo falla (Fali, 14 y 15-oct; antes
   // «poner» + «bien» o «poner» + «no», y el ruidito de «poner» le sonaba a «chaf»). Devuelve true si ha sonado, para no sumarle
   // «poner». Cuando «Comprobar» o «Pista» vuelven a preguntar por el asesino (forzar), basta con «bien».
   function revisarFinal(forzar) {
     if (est.resuelto || est.pos.some((k) => k === null)) return false;
-    if (!est.pos.every((k, i) => k === SOL[i])) { if (!forzar) { sonar('golpe'); aviso(`Ya están ${({ 9: 'los nueve', 10: 'los diez' })[P.length] || 'todos'}… pero algo no cuadra. Repasa las pistas o pulsa «Comprobar».`, 5400); return true; } return false; }
+    if (!est.pos.every((k, i) => k === SOL[i])) { if (!forzar) { sonar('wahwah'); aviso(`Ya están ${({ 9: 'los nueve', 10: 'los diez' })[P.length] || 'todos'}… pero algo no cuadra. Repasa las pistas o pulsa «Comprobar».`, 5400); return true; } return false; }
     sonar(forzar ? 'bien' : 'fanfarria'); setTimeout(preguntarAsesino, 450);
     return true;
   }
