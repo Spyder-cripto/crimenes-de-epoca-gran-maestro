@@ -1236,6 +1236,7 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
     bien: () => [523, 659, 784].forEach((f, i) => tono(f, i * 0.09, 0.3, 'triangle', 0.16)),
     pista: () => { tono(784, 0, 0.16, 'sine', 0.12); tono(1047, 0.1, 0.22, 'sine', 0.1); },
     fanfarria: () => [[392, 0, 0.16], [392, 0.17, 0.08], [523, 0.27, 0.2], [659, 0.5, 0.2], [784, 0.74, 0.5], [659, 1.28, 0.14], [784, 1.44, 0.8]].forEach(([f, t, d]) => { tono(f, t, d, 'square', 0.05); tono(f / 2, t, d, 'triangle', 0.08); }),
+    golpe: () => { [110, 131, 156].forEach((f) => tono(f, 0, 1.2, 'sawtooth', 0.035)); tono(55, 0, 1.4, 'triangle', 0.2); },
   };
   function sonar(n) { if (!opciones.sonido) return; try { SONIDOS[n](); } catch (e) { /* sin audio */ } }
   const bSonido = document.getElementById('bSonido');
@@ -1271,7 +1272,7 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
       apuntar();
       if (ocupante >= 0) est.pos[ocupante] = null;
       est.pos[sel] = k; est.tachas[k] = false;
-      sonar('poner'); sel = null; cambiado(); revisarFinal();
+      sel = null; cambiado(); if (!revisarFinal()) sonar('poner');
       return;
     }
     if (!ocupable(k)) { aviso(`En ${nomCelda(k)} hay ${unObj(o)}: ahí no puede estar nadie.`); return; }
@@ -1338,7 +1339,7 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
     if (col) col.onclick = () => {
       apuntar();
       for (const id of p.quien) { const i = IDX[id], k = SOL[i], otro = est.pos.indexOf(k); if (otro >= 0 && otro !== i) est.pos[otro] = null; est.pos[i] = k; est.tachas[k] = false; }
-      sonar('poner'); sel = null; ocultarPista(); cambiado(); revisarFinal();
+      sel = null; ocultarPista(); cambiado(); if (!revisarFinal()) sonar('poner');
     };
     sonar('pista'); pintar();
     pistaCaja.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -1378,10 +1379,14 @@ dialog::backdrop{background:rgba(44,37,49,.45)}
   document.getElementById('bPista').addEventListener('click', pedirPista);
 
   // ---------- final ----------
+  // Con el tablero completo suena UNA cosa: la fanfarria si todo está bien y el golpe grave si algo falla (Fali, 14-oct; antes
+  // «poner» + «bien» o «poner» + «no», y el ruidito de «poner» le sonaba a «chaf»). Devuelve true si ha sonado, para no sumarle
+  // «poner». Cuando «Comprobar» o «Pista» vuelven a preguntar por el asesino (forzar), basta con «bien».
   function revisarFinal(forzar) {
-    if (est.resuelto || est.pos.some((k) => k === null)) return;
-    if (!est.pos.every((k, i) => k === SOL[i])) { if (!forzar) { sonar('no'); aviso(`Ya están ${({ 9: 'los nueve', 10: 'los diez' })[P.length] || 'todos'}… pero algo no cuadra. Repasa las pistas o pulsa «Comprobar».`, 5400); } return; }
-    sonar('bien'); setTimeout(preguntarAsesino, 450);
+    if (est.resuelto || est.pos.some((k) => k === null)) return false;
+    if (!est.pos.every((k, i) => k === SOL[i])) { if (!forzar) { sonar('golpe'); aviso(`Ya están ${({ 9: 'los nueve', 10: 'los diez' })[P.length] || 'todos'}… pero algo no cuadra. Repasa las pistas o pulsa «Comprobar».`, 5400); return true; } return false; }
+    sonar(forzar ? 'bien' : 'fanfarria'); setTimeout(preguntarAsesino, 450);
+    return true;
   }
   function preguntarAsesino() {
     if (est.resuelto || (dlg.open && dlgCuerpo.querySelector('.sospechosos'))) return;
